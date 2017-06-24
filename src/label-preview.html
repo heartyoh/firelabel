@@ -58,15 +58,19 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       static get properties() {
         return {
-          label: {
-            type: Object,
-            observer: '_labelChanged'
-          }
+          label: Object
         };
       }
 
+      static get observers() {
+        return [
+          '_labelChanged(label.*)'
+        ]
+      }
+
       _labelChanged(label) {
-        var copiedLabel = label || EMPTY_MODEL;
+
+        var copiedLabel = this.label || EMPTY_MODEL;
 
         this.copiedLabel = JSON.parse(JSON.stringify(copiedLabel));
       }

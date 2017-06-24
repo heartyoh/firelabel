@@ -72,19 +72,26 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
     </style>
 
     <app-location route="{{route}}"></app-location>
+    
     <app-route
       route="{{route}}"
       pattern="[[rootPattern]]:page"
       data="{{routeData}}"
       tail="{{subroute}}">
     </app-route>
+    
     <app-route
       route="{{subroute}}"
       pattern="/:id"
       data="{{subrouteData}}">
     </app-route>
 
-    <firebase-auth id="auth" app-name="firelabel" provider="google" signed-in="{{signedIn}}" user="{{user}}">
+    <firebase-auth 
+      id="auth" 
+      app-name="firelabel" 
+      provider="google" 
+      signed-in="{{signedIn}}" 
+      user="{{user}}">
     </firebase-auth>
 
     <firebase-query
@@ -114,6 +121,20 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         path="/labels/[[user.uid]]/items/[[subrouteData.id]]"
         data="{{item}}">
     </firebase-query>
+
+    <firebase-document
+        id="query"
+        app-name="firelabel"
+        path="/labels/[[user.uid]]/labels/[[subrouteData.id]]"
+        data="{{label}}">
+    </firebase-document>
+
+    <firebase-document
+        id="query"
+        app-name="firelabel"
+        path="/labels/[[user.uid]]/models/[[subrouteData.id]]"
+        data="{{model}}">
+    </firebase-document>
 
     <app-indexeddb-mirror
         session="[[user.uid]]"
@@ -191,35 +212,16 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
           },
           rootPattern: String,
           routeData: Object,
-          subroute: {
-            type: Object,
-            observer: '_subrouteChanged'
-          },
+          subroute: Object,
           subrouteData: Object,
-          persistedModels: {
-            type: Object,
-            observer: '_persistedModelsChanged'
-          },
-          models: {
-            type: Object,
-            observer: '_modelsChanged'
-          },
-          persistedLabels: {
-            type: Object,
-            observer: '_persistedLabelsChanged'
-          },
-          labels: {
-            type: Object,
-            observer: '_labelsChanged'
-          },
-          persistedItems: {
-            type: Object,
-            observer: '_persistedItemsChanged'
-          },
-          items: {
-            type: Object,
-            observer: '_itemsChanged'
-          }
+          persistedModels: Object,
+          models: Object,
+          persistedLabels: Object,
+          labels: Object,
+          persistedItems: Object,
+          items: Object,
+          label: Object,
+          model: Object
         };
       }
 
@@ -235,54 +237,6 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         // Get root pattern for app-route, for more info about `rootPath` see:
         // https://www.polymer-project.org/2.0/docs/upgrade#urls-in-templates
         this.rootPattern = (new URL(this.rootPath)).pathname;
-      }
-
-      _persistedModelsChanged(persistedModels) {
-        // if(persistedModels)
-        //   this._subrouteChanged()
-      }
-
-      _modelsChanged(models) {
-        // if(models)
-        //   this._subrouteChanged()
-      }
-
-      _persistedLabelsChanged(persistedLabels) {
-        // if(persistedLabels)
-        //   this._subrouteChanged()
-      }
-
-      _labelsChanged(labels) {
-        // if(labels)
-        //   this._subrouteChanged()
-      }
-
-      _persistedItemsChanged(persistedItems) {
-        // if(persistedItems)
-        //   this._subrouteChanged()
-      }
-
-      _itemsChanged(items) {
-        // if(items)
-        //   this._subrouteChanged()
-      }
-
-      _subrouteChanged() {
-        var id = this.subrouteData.id
-        var models = this.persistedModels || []
-        var labels = this.persistedLabels || []
-        var items = this.persistedItems || []
-
-        switch(this.subroute.prefix) {
-        case '/label-preview':
-          this.model = id ? models.find(model => model.$key == id) : null;
-          this.label = id ? labels.find(label => label.$key == id) : null;
-          break;
-        // case '/item-list':
-        //   this.item = id ? items.find(item => item.$key == id) : null;
-        //   break;
-        default:
-        }
       }
 
       _routePageChanged(page) {
