@@ -4,6 +4,7 @@
   "fragments": [
     "src/my-login.html",
     "src/label-list.html",
+    "src/item-list.html",
     "src/label-preview.html",
     "src/my-view2.html",
     "src/my-view3.html",

@@ -6,7 +6,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="label-list">
+<dom-module id="item-list">
   <template>
     <style include="shared-styles">
       :host {
@@ -16,33 +16,36 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
       }
     </style>
 
-    <div class="labels">
-      <template is="dom-repeat" items="[[labels]]" as="label">
+    <div class="items">
+      <template is="dom-repeat" items="[[items]]" as="item">
         <div class="card">
           <div class="circle">[[index]]</div>
-          <h1>[[label.$key]]</h1>
-          <p>[[label.$key]]</p>
-          <a name="label-preview" href="label-preview/[[label.$key]]">Label Preview</a>
-          <a name="item-list" href="item-list/[[label.$key]]">Label Items</a>
-          <a name="label-modeler" href="label-modeler/[[label.$key]]">Label Modeler</a>
+          <h1>[[item.title]]</h1>
+          <p>[[item.body]]</p>
+          <p>[[item.$key]]</p>
+          <a name="label-print" href="label-print/[[item.$key]]">Label Print</a>
         </div>
       </template>
     </div>
   </template>
 
   <script>
-    class LabelList extends Polymer.Element {
-      static get is() { return 'label-list'; }
+    class ItemList extends Polymer.Element {
+      static get is() { return 'item-list'; }
 
       static get properties() {
         return {
-          labels: {
+          page: {
+            type: String,
+            notify: true
+          },
+          items: {
             type: Array
           }
         };
       }
     }
 
-    window.customElements.define(LabelList.is, LabelList);
+    window.customElements.define(ItemList.is, ItemList);
   </script>
 </dom-module>
