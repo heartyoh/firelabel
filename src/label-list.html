@@ -16,15 +16,15 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
       }
     </style>
 
-    <div class="labels">
-      <template is="dom-repeat" items="[[labels]]" as="label">
+    <div class="models">
+      <template is="dom-repeat" items="[[models]]" as="model">
         <div class="card">
           <div class="circle">[[index]]</div>
-          <h1>[[label.$key]]</h1>
-          <p>[[label.$key]]</p>
-          <a name="label-preview" href="label-preview/[[label.$key]]">Label Preview</a>
-          <a name="item-list" href="item-list/[[label.$key]]">Label Items</a>
-          <a name="label-modeler" href="label-modeler/[[label.$key]]">Label Modeler</a>
+          <h1>[[model.$key]]</h1>
+          <p>[[model.title]]</p>
+          <a name="label-preview" href="label-preview/[[model.$key]]">Label Preview</a>
+          <a name="item-list" href="item-list/[[model.$key]]">Label Items</a>
+          <a name="label-modeler" href="label-modeler/[[model.$key]]">Label Modeler</a>
         </div>
       </template>
     </div>
@@ -36,7 +36,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       static get properties() {
         return {
-          labels: {
+          models: {
             type: Array
           }
         };

@@ -2,13 +2,11 @@
   "entrypoint": "index.html",
   "shell": "src/firelabel-app.html",
   "fragments": [
-    "src/my-login.html",
+    "src/firebase-login.html",
     "src/label-list.html",
     "src/item-list.html",
     "src/label-preview.html",
-    "src/my-view2.html",
-    "src/my-view3.html",
-    "src/my-view404.html"
+    "src/notfound-404.html"
   ],
   "sources": [
     "src/**/*",

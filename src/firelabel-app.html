@@ -15,21 +15,20 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="my-icons.html">
 
 <link rel="import" href="../bower_components/app-storage/app-network-status-behavior.html">
 <link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 
-<link rel="lazy-import" href="my-login.html">
+<link rel="import" href="firelabel-icons.html">
+
+<link rel="lazy-import" href="firebase-login.html">
 
 <link rel="lazy-import" href="label-list.html">
 <link rel="lazy-import" href="item-list.html">
 <link rel="lazy-import" href="label-preview.html">
-<link rel="lazy-import" href="my-view2.html">
-<link rel="lazy-import" href="my-view3.html">
 
-<link rel="lazy-import" href="my-view404.html">
+<link rel="lazy-import" href="notfound-404.html">
 
 <dom-module id="firelabel-app">
   <template>
@@ -95,11 +94,46 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         data="{{labels}}">
     </firebase-query>
 
+    <firebase-query
+        id="query"
+        app-name="firelabel"
+        path="/labels/[[user.uid]]/models"
+        data="{{models}}">
+    </firebase-query>
+
+    <firebase-query
+        id="query"
+        app-name="firelabel"
+        path="/labels/[[user.uid]]/items"
+        data="{{items}}">
+    </firebase-query>
+
+    <firebase-query
+        id="query"
+        app-name="firelabel"
+        path="/labels/[[user.uid]]/items/[[subrouteData.id]]"
+        data="{{item}}">
+    </firebase-query>
+
     <app-indexeddb-mirror
         session="[[user.uid]]"
-        key="firelabel"
+        key="firelabel-labels"
         data="{{labels}}"
         persisted-data="{{persistedLabels}}">
+    </app-indexeddb-mirror>
+
+    <app-indexeddb-mirror
+        session="[[user.uid]]"
+        key="firelabel-models"
+        data="{{models}}"
+        persisted-data="{{persistedModels}}">
+    </app-indexeddb-mirror>
+
+    <app-indexeddb-mirror
+        session="[[user.uid]]"
+        key="firelabel-items"
+        data="{{items}}"
+        persisted-data="{{persistedItems}}">
     </app-indexeddb-mirror>
 
     <app-drawer-layout fullbleed>
@@ -108,9 +142,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         <app-toolbar>Menu</app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="label-list" href="label-list">Label List</a>
-          <a name="my-view2" href="my-view2">View Two</a>
-          <a name="my-view3" href="my-view3">View Three</a>
-          <a name="my-login" href="my-login">Login</a>
+          <a name="firebase-login" href="firebase-login">Login</a>
         </iron-selector>
       </app-drawer>
 
@@ -119,30 +151,28 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
         <app-header slot="header" condenses reveals effects="waterfall">
           <app-toolbar>
-            <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>My App</div>
+            <paper-icon-button icon="firelabel-icons:menu" drawer-toggle></paper-icon-button>
+            <div main-title>Fire Label</div>
           </app-toolbar>
         </app-header>
 
         <iron-pages
             selected="[[page]]"
             attr-for-selected="name"
-            fallback-selection="my-view404"
+            fallback-selection="notfound-404"
             role="main">
-          <label-list name="label-list" labels="[[persistedLabels]]"></label-list>
-          <label-preview name="label-preview" label="[[label]]"></label-preview>
-          <item-list name="item-list" items="[[items]]"></item-list>
-          <my-view2 name="my-view2"></my-view2>
-          <my-view3 name="my-view3"></my-view3>
-          <my-login name="my-login" on-sign-in="signIn" signed-in="[[signedIn]]" disabled="[[!online]]"></my-login>
-          <my-view404 name="my-view404"></my-view404>
+          <label-list name="label-list" models="[[persistedModels]]"></label-list>
+          <label-preview name="label-preview" model="[[model]]" label="[[label]]"></label-preview>
+          <item-list name="item-list" item="[[item]]"></item-list>
+          <firebase-login name="firebase-login" on-sign-in="signIn" signed-in="[[signedIn]]" disabled="[[!online]]"></firebase-login>
+          <notfound-404 name="notfound-404"></notfound-404>
         </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
   </template>
 
   <script>
-    class MyApp extends Polymer.Element {
+    class FireLabelApp extends Polymer.Element {
 
       static get is() { return 'firelabel-app'; }
 
@@ -166,6 +196,14 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
             observer: '_subrouteChanged'
           },
           subrouteData: Object,
+          persistedModels: {
+            type: Object,
+            observer: '_persistedModelsChanged'
+          },
+          models: {
+            type: Object,
+            observer: '_modelsChanged'
+          },
           persistedLabels: {
             type: Object,
             observer: '_persistedLabelsChanged'
@@ -173,6 +211,14 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
           labels: {
             type: Object,
             observer: '_labelsChanged'
+          },
+          persistedItems: {
+            type: Object,
+            observer: '_persistedItemsChanged'
+          },
+          items: {
+            type: Object,
+            observer: '_itemsChanged'
           }
         };
       }
@@ -191,6 +237,16 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         this.rootPattern = (new URL(this.rootPath)).pathname;
       }
 
+      _persistedModelsChanged(persistedModels) {
+        // if(persistedModels)
+        //   this._subrouteChanged()
+      }
+
+      _modelsChanged(models) {
+        // if(models)
+        //   this._subrouteChanged()
+      }
+
       _persistedLabelsChanged(persistedLabels) {
         // if(persistedLabels)
         //   this._subrouteChanged()
@@ -201,14 +257,30 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         //   this._subrouteChanged()
       }
 
+      _persistedItemsChanged(persistedItems) {
+        // if(persistedItems)
+        //   this._subrouteChanged()
+      }
+
+      _itemsChanged(items) {
+        // if(items)
+        //   this._subrouteChanged()
+      }
+
       _subrouteChanged() {
         var id = this.subrouteData.id
+        var models = this.persistedModels || []
         var labels = this.persistedLabels || []
+        var items = this.persistedItems || []
 
         switch(this.subroute.prefix) {
         case '/label-preview':
+          this.model = id ? models.find(model => model.$key == id) : null;
           this.label = id ? labels.find(label => label.$key == id) : null;
           break;
+        // case '/item-list':
+        //   this.item = id ? items.find(item => item.$key == id) : null;
+        //   break;
         default:
         }
       }
@@ -237,12 +309,12 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         Polymer.importHref(
             resolvedPageUrl,
             null,
-            this._showPage404.bind(this),
+            this._notfound404.bind(this),
             true);
       }
 
-      _showPage404() {
-        this.page = 'my-view404';
+      _notfound404() {
+        this.page = 'notfound-404';
       }
 
       signIn() {
@@ -257,6 +329,6 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
     }
 
-    window.customElements.define(MyApp.is, MyApp);
+    window.customElements.define(FireLabelApp.is, FireLabelApp);
   </script>
 </dom-module>
