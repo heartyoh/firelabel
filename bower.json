@@ -18,7 +18,8 @@
     "paper-button": "PolymerElements/paper-button#^2.0.0",
     "paper-icon-button": "PolymerElements/paper-icon-button#^2.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0-rc.11",
-    "polymerfire": "^2.1.0"
+    "polymerfire": "^2.1.0",
+    "things-scene-viewer": "ThingsElements/things-scene-viewer#polymer-2"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0-prerelease.7"

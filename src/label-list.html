@@ -18,11 +18,12 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
     <div class="labels">
       <template is="dom-repeat" items="[[labels]]" as="label">
-        <div class="card" on-click="handleClick">
+        <div class="card">
           <div class="circle">[[index]]</div>
           <h1>[[label.title]]</h1>
           <p>[[label.body]]</p>
           <p>[[label.$key]]</p>
+          <a name="label-preview" href="label-preview/[[label.$key]]">Label Preview</a>
         </div>
       </template>
     </div>
@@ -42,10 +43,6 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
             type: Array
           }
         };
-      }
-
-      handleClick(e) {
-        this.page = "label-preview";
       }
     }
 

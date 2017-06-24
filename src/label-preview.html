@@ -6,6 +6,8 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
 
+<link rel="import" href="../bower_components/things-scene-viewer/things-scene-viewer.html">
+
 <dom-module id="label-preview">
   <template>
     <style include="shared-styles">
@@ -14,31 +16,60 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
         padding: 10px;
       }
+
+      things-scene-viewer {
+        display: block;
+        /*width: 400px;*/
+        /*width: 3in;*/
+        /*width: 288px;*/
+        /*width: 400px;*/
+        height: 400px;
+        border-style: solid;
+        border-width: 1px;
+      }
     </style>
 
-    <div class="labels">
-      <template is="dom-repeat" items="[[labels]]" as="label">
-        <div class="card">
-          <div class="circle">[[index]]</div>
-          <h1>[[label.title]]</h1>
-          <p>[[label.body]]</p>
-          <p>[[label.$key]]</p>
-        </div>
-      </template>
-    </div>
+    <things-scene-viewer id='label' model='[[copiedLabel]]' fit='both'>
+    </things-scene-viewer>
+
   </template>
 
   <script>
+    const EMPTY_MODEL = {
+      width: 800,
+      height: 600,
+      components: [{
+        type: 'text',
+        top: 30,
+        left: 30,
+        textAlign: 'left',
+        fontSize: '30',
+        fontFamily: 'serif',
+        fontColor: 'navy',
+        text: 'EMPTY'
+      }]
+    }
+
     class LabelPreview extends Polymer.Element {
+
       static get is() { return 'label-preview'; }
 
       static get properties() {
         return {
+          labels: Object,
           label: {
-            type: Object
+            type: Object,
+            observer: '_labelChanged'
           }
         };
       }
+
+      _labelChanged(label) {
+        var copiedLabel = label || EMPTY_MODEL;
+
+        this.copiedLabel = JSON.parse(JSON.stringify(copiedLabel));
+      }
+
     }
 
     window.customElements.define(LabelPreview.is, LabelPreview);

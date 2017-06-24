@@ -30,7 +30,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
 <link rel="lazy-import" href="my-view404.html">
 
-<dom-module id="my-app">
+<dom-module id="firelabel-app">
   <template>
     <style>
       :host {
@@ -73,10 +73,16 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
     <app-location route="{{route}}"></app-location>
     <app-route
-        route="{{route}}"
-        pattern="[[rootPattern]]:page"
-        data="{{routeData}}"
-        tail="{{subroute}}"></app-route>
+      route="{{route}}"
+      pattern="[[rootPattern]]:page"
+      data="{{routeData}}"
+      tail="{{subroute}}">
+    </app-route>
+    <app-route
+      route="{{subroute}}"
+      pattern="/:id"
+      data="{{subrouteData}}">
+    </app-route>
 
     <firebase-auth id="auth" app-name="firelabel" provider="google" signed-in="{{signedIn}}" user="{{user}}">
     </firebase-auth>
@@ -100,7 +106,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
       <app-drawer id="drawer" slot="drawer">
         <app-toolbar>Menu</app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-          <a name="label-list" href="label-list">View One</a>
+          <a name="label-list" href="label-list">Label List</a>
           <a name="my-view2" href="my-view2">View Two</a>
           <a name="my-view3" href="my-view3">View Three</a>
           <a name="my-login" href="my-login">Login</a>
@@ -123,7 +129,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
             fallback-selection="my-view404"
             role="main">
           <label-list name="label-list" labels="[[persistedLabels]]" page="{{page}}"></label-list>
-          <label-preview name="label-preview" labels="[[persistedLabels]]"></label-preview>
+          <label-preview name="label-preview" labels="[[persistedLabels]]" label="[[label]]"></label-preview>
           <my-view2 name="my-view2"></my-view2>
           <my-view3 name="my-view3"></my-view3>
           <my-login name="my-login" on-sign-in="signIn" signed-in="[[signedIn]]" disabled="[[!online]]"></my-login>
@@ -136,7 +142,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
   <script>
     class MyApp extends Polymer.Element {
 
-      static get is() { return 'my-app'; }
+      static get is() { return 'firelabel-app'; }
 
       static get behoviors() {
         return [
@@ -153,7 +159,19 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
           },
           rootPattern: String,
           routeData: Object,
-          subroute: String,
+          subroute: {
+            type: Object,
+            observer: '_subrouteChanged'
+          },
+          subrouteData: Object,
+          persistedLabels: {
+            type: Object,
+            observer: '_persistedLabelsChanged'
+          },
+          labels: {
+            type: Object,
+            observer: '_labelsChanged'
+          }
         };
       }
 
@@ -169,6 +187,28 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         // Get root pattern for app-route, for more info about `rootPath` see:
         // https://www.polymer-project.org/2.0/docs/upgrade#urls-in-templates
         this.rootPattern = (new URL(this.rootPath)).pathname;
+      }
+
+      _persistedLabelsChanged(persistedLabels) {
+        // if(persistedLabels)
+        //   this._subrouteChanged()
+      }
+
+      _labelsChanged(labels) {
+        // if(labels)
+        //   this._subrouteChanged()
+      }
+
+      _subrouteChanged() {
+        var id = this.subrouteData.id
+        var labels = this.persistedLabels || []
+
+        switch(this.subroute.prefix) {
+        case '/label-preview':
+          this.label = id ? labels.find(label => label.$key == id) : null;
+          break;
+        default:
+        }
       }
 
       _routePageChanged(page) {
