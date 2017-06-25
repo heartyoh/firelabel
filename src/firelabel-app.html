@@ -4,6 +4,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+
 <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
@@ -12,8 +13,10 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="../bower_components/app-storage/app-network-status-behavior.html">
@@ -21,11 +24,14 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 
 <link rel="import" href="firelabel-icons.html">
+<link rel="import" href="shared-styles.html">
 
 <link rel="lazy-import" href="firebase-login.html">
 
 <link rel="lazy-import" href="label-list.html">
 <link rel="lazy-import" href="item-list.html">
+<link rel="lazy-import" href="label-new.html">
+<link rel="lazy-import" href="label-edit.html">
 <link rel="lazy-import" href="label-preview.html">
 <link rel="lazy-import" href="label-modeler.html">
 
@@ -33,7 +39,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
 <dom-module id="firelabel-app">
   <template>
-    <style>
+    <style include="shared-styles">
       :host {
         --app-primary-color: #4285f4;
         --app-secondary-color: black;
@@ -52,6 +58,13 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       app-header paper-icon-button {
         --paper-icon-button-ink-color: white;
+      }
+
+      app-drawer {
+        --app-drawer-content-container: {
+          box-shadow: 1px 0 2px 1px rgba(0,0,0,0.18);
+        }
+        --app-drawer-scrim-background: rgba(179, 157, 219, 0.5);
       }
 
       .drawer-list {
@@ -94,6 +107,9 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
       signed-in="{{signedIn}}" 
       user="{{user}}">
     </firebase-auth>
+
+    <!--<firebase-login on-sign-in="signIn" signed-in="[[signedIn]]" disabled="[[!online]]">
+    </firebase-login>-->
 
     <firebase-query
         id="query"
@@ -161,20 +177,25 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
     <app-drawer-layout fullbleed>
       <!-- Drawer content -->
       <app-drawer id="drawer" slot="drawer">
-        <app-toolbar>Menu</app-toolbar>
+        <app-toolbar>
+          <div main-title>Menu</div>          
+          <paper-icon-button icon="firelabel-icons:close" on-tap="collapse"></paper-icon-button>
+        </app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="label-list" href="label-list">Label List</a>
-          <a name="firebase-login" href="firebase-login">Login</a>
         </iron-selector>
       </app-drawer>
 
       <!-- Main content -->
       <app-header-layout has-scrolling-region>
 
-        <app-header slot="header" condenses reveals effects="waterfall">
+        <app-header slot="header" fixed condenses effects="waterfall">
           <app-toolbar>
             <paper-icon-button icon="firelabel-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>Fire Label</div>
+            <paper-icon-button icon="search"></paper-icon-button>
+            <paper-icon-button icon="account-circle" on-tap="signIn" disabled="[[signedIn]]"></paper-icon-button>
+            <paper-icon-button icon="firelabel-icons:close" on-tap="signOut" disabled="[[!signedIn]]"></paper-icon-button>
           </app-toolbar>
         </app-header>
 
@@ -184,14 +205,17 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
             fallback-selection="notfound-404"
             role="main">
           <label-list name="label-list" models="[[persistedModels]]"></label-list>
+          <label-new name="label-new" model="[[model]]" label="[[label]]"></label-new>
+          <label-edit name="label-edit" model="[[model]]" label="[[label]]"></label-edit>
           <label-preview name="label-preview" model="[[model]]" label="[[label]]"></label-preview>
           <label-modeler name="label-modeler" model="[[model]]" label="[[label]]"></label-modeler>
           <item-list name="item-list" item="[[item]]"></item-list>
-          <firebase-login name="firebase-login" on-sign-in="signIn" signed-in="[[signedIn]]" disabled="[[!online]]"></firebase-login>
+          <!--<firebase-login name="firebase-login" on-sign-in="signIn" signed-in="[[signedIn]]" disabled="[[!online]]"></firebase-login>-->
           <notfound-404 name="notfound-404"></notfound-404>
         </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
+
   </template>
 
   <script>
@@ -239,6 +263,26 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         // Get root pattern for app-route, for more info about `rootPath` see:
         // https://www.polymer-project.org/2.0/docs/upgrade#urls-in-templates
         this.rootPattern = (new URL(this.rootPath)).pathname;
+
+        this._boundBeginNewLabel = this._onBeginNewLabel.bind(this);
+        this._boundCommitNewLabel = this._onCommitNewLabel.bind(this);
+        this._boundCancelNewLabel = this._onCancelNewLabel.bind(this);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.addEventListener('begin-new-label', this._boundBeginNewLabel);
+        this.addEventListener('commit-new-label', this._boundCommitNewLabel);
+        this.addEventListener('cancel-new-label', this._boundCancelNewLabel);
+      }
+
+      disconnectedCallback() {
+        super.disconnectedCallback();
+
+        this.removeEventListener('begin-new-label', this._boundBeginNewLabel);
+        this.removeEventListener('commit-new-label', this._boundCommitNewLabel);
+        this.removeEventListener('cancel-new-label', this._boundCancelNewLabel);
       }
 
       _routePageChanged(page) {
@@ -260,6 +304,14 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       _pageChanged(page) {
 
+        // switch(page) {
+        //   case 'label-preview':
+        //     this.$.drawer.close();
+        //     break;
+        //   default:
+        //     this.$.drawer.open();
+        // }
+
         // Load page import on demand. Show 404 page if fails
         var resolvedPageUrl = this.resolveUrl(page + '.html');
         Polymer.importHref(
@@ -269,8 +321,16 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
             true);
       }
 
+      collapse() {
+        this.$.drawer.close();
+      }
+
       _notfound404() {
         this.page = 'notfound-404';
+      }
+
+      get isEditable() {
+        return this.online;
       }
 
       signIn() {
@@ -283,6 +343,17 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         }
       }
 
+      _onBeginNewLabel() {
+        this.set('route.path', '/label-new');
+      }
+
+      _onCommitNewLabel() {
+        this.set('route.path', '/label-modeler');
+      }
+
+      _onCancelNewLabel() {
+        this.set('route.path', '/label-list');
+      }
     }
 
     window.customElements.define(FireLabelApp.is, FireLabelApp);

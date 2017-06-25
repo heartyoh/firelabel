@@ -1,0 +1,71 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="label-edit">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+
+  <paper-input 
+    always-float-label 
+    label="Title"
+    value="{{model.title}}"
+    required>
+  </paper-input>
+
+  <paper-textarea
+    always-float-label 
+    label="Model"
+    value="{{stringifiedLabel}}"
+    required>
+  </paper-textarea>
+
+  <paper-fab
+    icon="add"
+    on-tap="create"
+    aria-label="Add Label">
+  </paper-fab>
+
+  </template>
+
+  <script>
+    class LabelEdit extends Polymer.Element {
+      static get is() { return 'label-edit'; }
+
+      static get properties() {
+        return {
+          model: {
+            type: Object,
+            notify: true
+          },
+          label: {
+            type: Object,
+            observer: "labelChanged"
+          }
+        };
+      }
+
+      labelChanged(label) {
+        this.stringifiedLabel = JSON.stringify(label, 2, 2)
+      }
+    }
+
+    window.customElements.define(LabelEdit.is, LabelEdit);
+  </script>
+</dom-module>

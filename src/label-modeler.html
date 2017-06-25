@@ -6,6 +6,13 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
 
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="./modeler/things-modeler-htoolbar.html">
+<link rel="import" href="./modeler/things-modeler-vtoolbar.html">
+<link rel="import" href="./modeler/things-modeler-scene.html">
+<link rel="import" href="./modeler/things-modeler-property.html">
+
 <link rel="import" href="../bower_components/things-scene-viewer/things-scene-viewer.html">
 <link rel="import" href="../bower_components/things-scene-viewer/things-scene-property.html">
 <link rel="import" href="../bower_components/things-scene-viewer/things-scene-layer.html">
@@ -16,23 +23,43 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
     <style include="shared-styles">
       :host {
         display: block;
-
-        padding: 10px;
+        @apply(--layout-vertical);
+      }
+      div {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+      }
+      things-modeler-scene {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex)
       }
 
-      things-scene-viewer {
+      *::shadow {
+        -webkit-user-select: none;
+           -moz-user-select: none;
+            -ms-user-select: none;
+                user-select: none;
+      }
+
+      /*:host {
         display: block;
+
+        padding: 10px;
+      }*/
+
+      things-scene-viewer {
+        /*display: block;*/
+        /*height: 100%;*/
         /*width: 400px;*/
         /*width: 3in;*/
         /*width: 288px;*/
         /*width: 400px;*/
-        height: 400px;
-        border-style: solid;
-        border-width: 1px;
+        /*height: 400px;*/
+        /*border-style: solid;*/
+        /*border-width: 1px;*/
+        @apply(--layout-flex);
       }
     </style>
-
-    <h1>[[model.title]]</h1>
 
     <things-scene-viewer id="label"
                          scene="{{scene}}"

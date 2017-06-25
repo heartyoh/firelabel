@@ -1,0 +1,148 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="things-modeler-vtoolbar">
+  <template>
+    <style>
+      :host {
+        display: block;
+        background-color:#ece6dd;
+        @apply(--layout-vertical);
+      }
+      iron-icon{
+        margin-bottom:1px;transform: scale(1.2);
+        color: var(--paper-blue-grey-500);
+        display:block;margin:auto;
+        @apply(--layout-center-center);
+      }
+      paper-button{
+        @apply(--layout-vertical);
+        @apply(--things-vtoolbar-iconbtn);
+        background:url(/images/icon-vtoolbar.png) 0 0 no-repeat;
+      }
+      paper-button[data-pallet="line"]      {background-position:2px -286px}
+      paper-button[data-pallet="rect"]      {background-position:2px -386px}
+      paper-button[data-pallet="text"]      {background-position:1px -787px}
+      paper-button[data-pallet="media"]     {background-position:1px -887px}
+      paper-button[data-pallet="gauge"]     {background-position:1px -989px}
+      paper-button[data-pallet="chart"]     {background-position:1px -1088px}
+      paper-button[data-pallet="table"]     {background-position:0 -1387px}
+      paper-button[data-pallet="3D"]        {background-position:1px -1190px}
+      paper-button[data-pallet="warehouse"] {background-position:1px -1290px}
+
+      .pressed{background-position:1px    13px}
+      .pressed[pressed],.pressed[active]{
+        background-position:0 -89px;
+        background-color: #beb9b3
+      }
+    </style>
+
+    <paper-button id="shift" toggles class="pressed" active="[[isShiftMode(mode)]]">
+    </paper-button>
+
+    <template is="dom-repeat" items="{{components}}">
+      <paper-button data-pallet$="{{item.pallet}}">
+      </paper-button>
+    </template>
+
+    <things-modeler-pallet id="pallet"
+                           scene="{{scene}}"
+                           pallet="{{pallet}}"
+                           class="shadow">
+    </things-modeler-pallet>
+
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'things-modeler-vtoolbar',
+
+        properties: {
+          scene: {
+            notify: true
+          },
+          components: {
+            type: Array,
+            notify: true,
+            value: [{
+              pallet: 'line'
+            }, {
+              pallet: 'rect'
+            }, {
+              pallet: 'text'
+            }, {
+              pallet: 'media'
+            }, {
+              pallet: 'gauge'
+            }, {
+              pallet: 'chart'
+            }, {
+              pallet: 'table'
+            }
+            , {
+              pallet: '3D'
+            }
+            , {
+              pallet: 'warehouse'
+            }]
+          },
+          pallet: {
+            notify: true
+          },
+          mode: {
+            notify: true
+          }
+        },
+
+        listeners: {
+          'tap': 'onTapTools',
+          'shift.tap': 'onTapShift'
+        },
+
+        isShiftMode: function(mode) {
+          return mode === 2
+        },
+
+        ready: function() {
+
+          this.$['pallet'].fitInto = this.parentNode
+        },
+
+        onTapShift: function(e) {
+
+          this.mode = this.$.shift.active ? 2 : 1
+        },
+
+        onTapTools: function(e) {
+
+          var button = e.target;
+
+          while (!button.hasAttribute('data-pallet') && button !== document.body)
+            button = button.parentElement;
+
+          this.pallet = button.getAttribute('data-pallet');
+
+          if(!this.pallet || button.tagName !== 'PAPER-BUTTON')
+            return;
+
+          this.async(function() {
+            this.$.pallet.open();
+
+            var right = this.getBoundingClientRect().right;
+            this.$.pallet.style['left'] = right + 'px';
+          });
+        }
+      });
+    })();
+  </script>
+</dom-module>

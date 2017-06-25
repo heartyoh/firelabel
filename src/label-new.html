@@ -1,0 +1,70 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<dom-module id="label-new">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+
+  <paper-input 
+    always-float-label 
+    label="Name"
+    required>
+  </paper-input>
+
+  <paper-input 
+    always-float-label 
+    label="Title"
+    required>
+  </paper-input>
+
+  <paper-textarea
+    always-float-label 
+    label="Model"
+    value="{{stringifiedLabel}}"
+    required>
+  </paper-textarea>
+
+  <paper-button raised on-tap="create">create</paper-button>
+  <paper-button raised on-tap="cancel">cancel</paper-button>
+
+  </template>
+
+  <script>
+    class LabelNew extends Polymer.Element {
+      static get is() { return 'label-new'; }
+
+      static get properties() {
+        return {
+          models: {
+            type: Array
+          }
+        };
+      }
+
+      create() {
+        this.dispatchEvent(new CustomEvent('commit-new-label', { bubbles: true, composed: true }));
+      }
+
+      cancel() {
+        this.dispatchEvent(new CustomEvent('cancel-new-label', { bubbles: true, composed: true }));
+      }
+    }
+
+    window.customElements.define(LabelNew.is, LabelNew);
+  </script>
+</dom-module>

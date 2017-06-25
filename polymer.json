@@ -4,6 +4,8 @@
   "fragments": [
     "src/firebase-login.html",
     "src/label-list.html",
+    "src/label-new.html",
+    "src/label-edit.html",
     "src/item-list.html",
     "src/label-preview.html",
     "src/label-modeler.html",
