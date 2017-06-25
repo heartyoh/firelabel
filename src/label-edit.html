@@ -71,7 +71,22 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
       }
 
       save() {
-        this.dispatchEvent(new CustomEvent('commit-edit-label', { bubbles: true, composed: true }));
+        var label = this.label;
+        try {
+          if(this.stringifiedLabel)
+            label = JSON.parse(this.stringifiedLabel)
+        } catch(e) {
+          console.error(e)
+        }
+
+        this.dispatchEvent(new CustomEvent('commit-edit-label', {
+          detail: {
+            key: this.key,
+            label: label
+          },
+          bubbles: true,
+          composed: true
+        }));
       }
 
       cancel() {

@@ -357,13 +357,11 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
       }
 
       _onCommitNewLabel(e) {
-        // this.set('route.path', '/label-modeler');
-
-        this.set('route.path', '/label-list');
-
         var parentModelPath = `/labels/${this.user.uid}/models`;
         var parentLabelPath = `/labels/${this.user.uid}/labels`;
-        var key = e.detail.key
+        var { key, label } = e.detail;
+
+        this.set('label', label);
 
         if(this.model.title && key) {
           this.$['document-model'].saveValue(parentModelPath, key)
@@ -372,21 +370,32 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
           this.$['document-label'].saveValue(parentLabelPath, key)
           .then(() => this.$['document-label'].reset())
         }
+
+        // this.set('route.path', '/label-modeler');
+
+        this.set('route.path', '/label-list');
       }
 
       _onCancelNewLabel() {
         this.set('route.path', '/label-list');
       }
 
-      _onCommitEditLabel() {
+      _onCommitEditLabel(e) {
+        var parentModelPath = `/labels/${this.user.uid}/models`;
+        var parentLabelPath = `/labels/${this.user.uid}/labels`;
+        var { key, label } = e.detail;
+
+        this.set('label', label);
+
+        if(this.model.title && key) {
+          this.$['document-model'].saveValue(parentModelPath, key)
+          .then(() => this.$['document-model'].reset())
+          
+          this.$['document-label'].saveValue(parentLabelPath, key)
+          .then(() => this.$['document-label'].reset())
+        }
+
         this.set('route.path', '/label-list');
-
-        var parentPath = `/labels/${this.user.uid}/models`;
-        var key = this.subrouteData.id
-
-        if(this.model.title)
-          this.$['document-model'].saveValue(parentPath, key)
-          .then(() => this.$['document-model'].reset());
       }
 
       _onCancelEditLabel() {
@@ -394,13 +403,13 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
       }
 
       _onDeleteLabel() {
-        this.set('route.path', '/label-list');
-
         if(!this.$['document-model'].isNew)
           this.$['document-model'].destroy();
 
         if(!this.$['document-label'].isNew)
           this.$['document-label'].destroy();
+
+        this.set('route.path', '/label-list');
       }
     }
 
