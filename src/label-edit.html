@@ -7,6 +7,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
@@ -36,6 +37,9 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
     required>
   </paper-textarea>
 
+  <paper-button raised on-tap="save">save</paper-button>
+  <paper-button raised on-tap="cancel">cancel</paper-button>
+
   <paper-fab
     icon="add"
     on-tap="create"
@@ -63,6 +67,14 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       labelChanged(label) {
         this.stringifiedLabel = JSON.stringify(label, 2, 2)
+      }
+
+      save() {
+        this.dispatchEvent(new CustomEvent('commit-edit-label', { bubbles: true, composed: true }));
+      }
+
+      cancel() {
+        this.dispatchEvent(new CustomEvent('cancel-edit-label', { bubbles: true, composed: true }));
       }
     }
 

@@ -267,6 +267,8 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         this._boundBeginNewLabel = this._onBeginNewLabel.bind(this);
         this._boundCommitNewLabel = this._onCommitNewLabel.bind(this);
         this._boundCancelNewLabel = this._onCancelNewLabel.bind(this);
+        this._boundCommitEditLabel = this._onCommitEditLabel.bind(this);
+        this._boundCancelEditLabel = this._onCancelEditLabel.bind(this);
       }
 
       connectedCallback() {
@@ -275,6 +277,8 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         this.addEventListener('begin-new-label', this._boundBeginNewLabel);
         this.addEventListener('commit-new-label', this._boundCommitNewLabel);
         this.addEventListener('cancel-new-label', this._boundCancelNewLabel);
+        this.addEventListener('commit-edit-label', this._boundCommitEditLabel);
+        this.addEventListener('cancel-edit-label', this._boundCancelEditLabel);
       }
 
       disconnectedCallback() {
@@ -283,6 +287,8 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         this.removeEventListener('begin-new-label', this._boundBeginNewLabel);
         this.removeEventListener('commit-new-label', this._boundCommitNewLabel);
         this.removeEventListener('cancel-new-label', this._boundCancelNewLabel);
+        this.removeEventListener('commit-edit-label', this._boundCommitEditLabel);
+        this.removeEventListener('cancel-edit-label', this._boundCancelEditLabel);
       }
 
       _routePageChanged(page) {
@@ -352,6 +358,14 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
       }
 
       _onCancelNewLabel() {
+        this.set('route.path', '/label-list');
+      }
+
+      _onCommitEditLabel() {
+        this.set('route.path', '/label-list');
+      }
+
+      _onCancelEditLabel() {
         this.set('route.path', '/label-list');
       }
     }
