@@ -27,6 +27,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 <link rel="lazy-import" href="label-list.html">
 <link rel="lazy-import" href="item-list.html">
 <link rel="lazy-import" href="label-preview.html">
+<link rel="lazy-import" href="label-modeler.html">
 
 <link rel="lazy-import" href="notfound-404.html">
 
@@ -184,6 +185,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
             role="main">
           <label-list name="label-list" models="[[persistedModels]]"></label-list>
           <label-preview name="label-preview" model="[[model]]" label="[[label]]"></label-preview>
+          <label-modeler name="label-modeler" model="[[model]]" label="[[label]]"></label-modeler>
           <item-list name="item-list" item="[[item]]"></item-list>
           <firebase-login name="firebase-login" on-sign-in="signIn" signed-in="[[signedIn]]" disabled="[[!online]]"></firebase-login>
           <notfound-404 name="notfound-404"></notfound-404>

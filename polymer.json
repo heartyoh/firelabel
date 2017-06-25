@@ -6,6 +6,7 @@
     "src/label-list.html",
     "src/item-list.html",
     "src/label-preview.html",
+    "src/label-modeler.html",
     "src/notfound-404.html"
   ],
   "sources": [

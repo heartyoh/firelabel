@@ -1,0 +1,118 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+
+<link rel="import" href="../bower_components/things-scene-viewer/things-scene-viewer.html">
+<link rel="import" href="../bower_components/things-scene-viewer/things-scene-property.html">
+<link rel="import" href="../bower_components/things-scene-viewer/things-scene-layer.html">
+<link rel="import" href="../bower_components/things-scene-viewer/things-scene-handler.html">
+
+<dom-module id="label-modeler">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+
+      things-scene-viewer {
+        display: block;
+        /*width: 400px;*/
+        /*width: 3in;*/
+        /*width: 288px;*/
+        /*width: 400px;*/
+        height: 400px;
+        border-style: solid;
+        border-width: 1px;
+      }
+    </style>
+
+    <h1>[[model.title]]</h1>
+
+    <things-scene-viewer id="label"
+                         scene="{{scene}}"
+                         model="[[copiedLabel]]"
+                         variables="{{variables}}"
+                         selected="{{selected}}"
+                         mode="{{mode}}"
+                         fit="ratio"
+                         base-url="[[globals.baseUrl]]"
+                         on-contextmenu="onContextMenu"
+                         provider="[[provider]]">
+      <things-scene-layer type="selection-layer"></things-scene-layer>
+      <things-scene-layer type="modeling-layer"></things-scene-layer>
+      <things-scene-layer type="guide-layer">
+        <things-scene-property name="ruler" value="disabled"></things-scene-property>
+      </things-scene-layer>
+      <things-scene-layer type="shift-layer">
+        <things-scene-property name="text" value="[[overlay]]"></things-scene-property>
+        <things-scene-property name="alpha" value=0.3></things-scene-property>
+        <things-scene-property name="fontFamily" value="arial"></things-scene-property>
+        <things-scene-property name="fontSize" value=30 type="number"></things-scene-property>
+        <things-scene-property name="fontColor" value="navy"></things-scene-property>
+        <things-scene-property name="textBaseline" value="top"></things-scene-property>
+        <things-scene-property name="textAlign" value="left"></things-scene-property>
+        <things-scene-property name="paddingTop" value=50 type="number"></things-scene-property>
+        <things-scene-property name="paddingLeft" value=50 type="number"></things-scene-property>
+      </things-scene-layer>
+      <things-scene-layer type="tag-layer"></things-scene-layer>
+      <things-scene-handler type="text-editor"></things-scene-handler>
+      <things-scene-handler type="move-handler"></things-scene-handler>
+    </things-scene-viewer>
+
+  </template>
+
+  <script>
+    const EMPTY_MODEL = {
+      width: 800,
+      height: 600,
+      components: [{
+        type: 'text',
+        top: 30,
+        left: 30,
+        textAlign: 'left',
+        fontSize: '30',
+        fontFamily: 'serif',
+        fontColor: 'navy',
+        text: 'EMPTY'
+      }]
+    }
+
+    class LabelModeler extends Polymer.Element {
+
+      static get is() { return 'label-modeler'; }
+
+      static get properties() {
+        return {
+          label: Object,
+          mode: {
+            type: Number,
+            notify: true,
+            value: 1
+          }
+        };
+      }
+
+      static get observers() {
+        return [
+          '_labelChanged(label.*)'
+        ]
+      }
+
+      _labelChanged(label) {
+
+        var copiedLabel = this.label || EMPTY_MODEL;
+
+        this.copiedLabel = JSON.parse(JSON.stringify(copiedLabel));
+      }
+
+    }
+
+    window.customElements.define(LabelModeler.is, LabelModeler);
+  </script>
+</dom-module>
