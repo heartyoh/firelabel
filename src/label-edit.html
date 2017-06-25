@@ -38,6 +38,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
   </paper-textarea>
 
   <paper-button raised on-tap="save">save</paper-button>
+  <paper-button raised on-tap="delete">delete</paper-button>
   <paper-button raised on-tap="cancel">cancel</paper-button>
 
   <paper-fab
@@ -75,6 +76,10 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       cancel() {
         this.dispatchEvent(new CustomEvent('cancel-edit-label', { bubbles: true, composed: true }));
+      }
+
+      delete() {
+        this.dispatchEvent(new CustomEvent('delete-label', { bubbles: true, composed: true }));
       }
     }
 

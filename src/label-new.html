@@ -23,12 +23,14 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
   <paper-input 
     always-float-label 
     label="Name"
+    value="{{key}}"
     required>
   </paper-input>
 
   <paper-input 
     always-float-label 
     label="Title"
+    value="{{model.title}}"
     required>
   </paper-input>
 
@@ -50,20 +52,57 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       static get properties() {
         return {
-          models: {
-            type: Array
-          }
+          model: {
+            type: Object
+          },
+          label: {
+            type: Object,
+            notify: true
+          },
+          key: String
         };
       }
 
       create() {
-        this.dispatchEvent(new CustomEvent('commit-new-label', { bubbles: true, composed: true }));
+        var label = LabelNew.EMPTY_MODEL;
+        try {
+          if(this.stringifiedLabel)
+            label = JSON.parse(this.stringifiedLabel)
+        } catch(e) {
+          console.error(e)
+        }
+
+        this.set('label', label);
+
+        console.log('create', this.label)
+        this.dispatchEvent(new CustomEvent('commit-new-label', {
+          detail: {
+            key: this.key
+          },
+          bubbles: true,
+          composed: true
+        }));
       }
 
       cancel() {
         this.dispatchEvent(new CustomEvent('cancel-new-label', { bubbles: true, composed: true }));
       }
     }
+
+    LabelNew.EMPTY_MODEL = {
+      width: 800,
+      height: 600,
+      components: [{
+        type: 'text',
+        top: 30,
+        left: 30,
+        textAlign: 'left',
+        fontSize: '30',
+        fontFamily: 'serif',
+        fontColor: 'navy',
+        text: 'EMPTY'
+      }]
+    };
 
     window.customElements.define(LabelNew.is, LabelNew);
   </script>

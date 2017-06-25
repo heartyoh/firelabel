@@ -112,42 +112,42 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
     </firebase-login>-->
 
     <firebase-query
-        id="query"
+        id="query-labels"
         app-name="firelabel"
         path="/labels/[[user.uid]]/labels"
         data="{{labels}}">
     </firebase-query>
 
     <firebase-query
-        id="query"
+        id="query-models"
         app-name="firelabel"
         path="/labels/[[user.uid]]/models"
         data="{{models}}">
     </firebase-query>
 
     <firebase-query
-        id="query"
+        id="query-items"
         app-name="firelabel"
         path="/labels/[[user.uid]]/items"
         data="{{items}}">
     </firebase-query>
 
     <firebase-query
-        id="query"
+        id="query-item"
         app-name="firelabel"
         path="/labels/[[user.uid]]/items/[[subrouteData.id]]"
         data="{{item}}">
     </firebase-query>
 
     <firebase-document
-        id="query"
+        id="document-label"
         app-name="firelabel"
         path="/labels/[[user.uid]]/labels/[[subrouteData.id]]"
         data="{{label}}">
     </firebase-document>
 
     <firebase-document
-        id="query"
+        id="document-model"
         app-name="firelabel"
         path="/labels/[[user.uid]]/models/[[subrouteData.id]]"
         data="{{model}}">
@@ -205,10 +205,10 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
             fallback-selection="notfound-404"
             role="main">
           <label-list name="label-list" models="[[persistedModels]]"></label-list>
-          <label-new name="label-new" model="[[model]]" label="[[label]]"></label-new>
-          <label-edit name="label-edit" model="[[model]]" label="[[label]]"></label-edit>
+          <label-new name="label-new" model="{{model}}" label="{{label}}"></label-new>
+          <label-edit name="label-edit" model="{{model}}" label="{{label}}"></label-edit>
           <label-preview name="label-preview" model="[[model]]" label="[[label]]"></label-preview>
-          <label-modeler name="label-modeler" model="[[model]]" label="[[label]]"></label-modeler>
+          <label-modeler name="label-modeler" model="{{model}}" label="{{label}}"></label-modeler>
           <item-list name="item-list" item="[[item]]"></item-list>
           <!--<firebase-login name="firebase-login" on-sign-in="signIn" signed-in="[[signedIn]]" disabled="[[!online]]"></firebase-login>-->
           <notfound-404 name="notfound-404"></notfound-404>
@@ -269,6 +269,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         this._boundCancelNewLabel = this._onCancelNewLabel.bind(this);
         this._boundCommitEditLabel = this._onCommitEditLabel.bind(this);
         this._boundCancelEditLabel = this._onCancelEditLabel.bind(this);
+        this._boundDeleteLabel = this._onDeleteLabel.bind(this);
       }
 
       connectedCallback() {
@@ -279,6 +280,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         this.addEventListener('cancel-new-label', this._boundCancelNewLabel);
         this.addEventListener('commit-edit-label', this._boundCommitEditLabel);
         this.addEventListener('cancel-edit-label', this._boundCancelEditLabel);
+        this.addEventListener('delete-label', this._boundDeleteLabel);
       }
 
       disconnectedCallback() {
@@ -289,6 +291,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         this.removeEventListener('cancel-new-label', this._boundCancelNewLabel);
         this.removeEventListener('commit-edit-label', this._boundCommitEditLabel);
         this.removeEventListener('cancel-edit-label', this._boundCancelEditLabel);
+        this.removeEventListener('delete-label', this._boundDeleteLabel);
       }
 
       _routePageChanged(page) {
@@ -353,8 +356,22 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         this.set('route.path', '/label-new');
       }
 
-      _onCommitNewLabel() {
-        this.set('route.path', '/label-modeler');
+      _onCommitNewLabel(e) {
+        // this.set('route.path', '/label-modeler');
+
+        this.set('route.path', '/label-list');
+
+        var parentModelPath = `/labels/${this.user.uid}/models`;
+        var parentLabelPath = `/labels/${this.user.uid}/labels`;
+        var key = e.detail.key
+
+        if(this.model.title && key) {
+          this.$['document-model'].saveValue(parentModelPath, key)
+          .then(() => this.$['document-model'].reset())
+          
+          this.$['document-label'].saveValue(parentLabelPath, key)
+          .then(() => this.$['document-label'].reset())
+        }
       }
 
       _onCancelNewLabel() {
@@ -363,10 +380,27 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       _onCommitEditLabel() {
         this.set('route.path', '/label-list');
+
+        var parentPath = `/labels/${this.user.uid}/models`;
+        var key = this.subrouteData.id
+
+        if(this.model.title)
+          this.$['document-model'].saveValue(parentPath, key)
+          .then(() => this.$['document-model'].reset());
       }
 
       _onCancelEditLabel() {
         this.set('route.path', '/label-list');
+      }
+
+      _onDeleteLabel() {
+        this.set('route.path', '/label-list');
+
+        if(!this.$['document-model'].isNew)
+          this.$['document-model'].destroy();
+
+        if(!this.$['document-label'].isNew)
+          this.$['document-label'].destroy();
       }
     }
 
