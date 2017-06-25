@@ -1,0 +1,328 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../bower_components/things-designer-elements/things-editor-value.html">
+<link rel="import" href="../../bower_components/things-grid/things-basic-grid.html">
+
+<dom-module id="things-property-data">
+  <template>
+    <style>
+      :host {
+        @apply(--things-properties-panel);
+      }
+      label{
+        @apply(--things-label);
+      }
+      input{
+        @apply(--things-input);
+      }
+      fieldset{
+        @apply(--things-fieldset);
+      }
+      legend{
+        @apply(--things-fieldset-legend);
+      }
+      paper-tabs{
+        width:229px;height:25px;
+        margin:5px 0 0 7px;
+        border:1px solid rgba(0,0,0,.2);
+        border-width:1px 1px 0 1px;
+      }
+      paper-tabs::shadow #selectionBar.paper-tabs{background-color:transparent;}
+      paper-tab{
+        background-color:rgba(0,0,0,.2);
+        border:1px solid rgba(0,0,0,.07);
+        border-width:0 1px 0 0;
+        padding:0 5px;
+        color:#fff;
+        font-size:13px;
+      }
+      paper-tab[disabled]{background-color:rgba(0,0,0,.1);}
+      paper-tab:last-child{border-width:0;}
+      paper-tab.iron-selected{
+        background-color:rgba(255,255,255,.5);
+        color:#585858;
+      }
+      [has-set]:before{
+        content:"";
+        position:relative;
+        left:3px;
+        width:5px;height:5px;
+        display:inline-block;
+        border-radius:50%;
+        background-color:#4caf50;
+      }
+
+      #grid{
+        width:253px;height: 300px;
+        margin:0 0 10px 7px;padding:0px;
+        border:1px solid rgba(0,0,0,.2);
+      }
+
+    </style>
+
+    <fieldset>
+      <label>
+        <things-i18n-msg msgid="label.id" auto>ID</things-i18n-msg>
+      </label>
+      <input required value="{{model.id::change}}">
+
+      <label>
+        <things-i18n-msg msgid="label.class" auto>Class</things-i18n-msg>
+      </label>
+      <input required value="{{model.class::change}}">
+
+      <label>
+        <things-i18n-msg msgid="label.template-prefix" auto>Template Prefix</things-i18n-msg>
+      </label>
+      <input required value="{{model.templatePrefix::change}}">
+
+    </fieldset>
+
+    <fieldset>
+      <legend>
+        <things-i18n-msg msgid="label.value" auto>value</things-i18n-msg>
+      </legend>
+
+      <things-basic-grid
+        id="grid"
+        fixed-column-count="0"
+        model="[[gridModel]]"
+        columns="[[columns]]"
+        config="[[config]]"
+        data="{{model.data}}"
+        on-things-grid-event-configured="onThingsGridConfigured"
+        >
+      </things-basic-grid>
+    </fieldset>
+
+    <fieldset>
+      <legend>
+        <things-i18n-msg msgid="label.mapping" auto>Mapping</things-i18n-msg>
+      </legend>
+
+      <paper-tabs selected="{{currentMappingIndex}}">
+        <paper-tab data-mapping="1">1</paper-tab>
+        <paper-tab data-mapping="2">2</paper-tab>
+        <paper-tab data-mapping="3">3</paper-tab>
+        <paper-tab data-mapping="4">4</paper-tab>
+        <paper-tab data-mapping="5">5</paper-tab>
+        <paper-tab data-mapping="6">6</paper-tab>
+        <paper-tab data-mapping="7">7</paper-tab>
+      </paper-tabs>
+
+      <things-editor-value mapping="{{mapping}}"
+                           type="[[dataType]]">
+      </things-editor-value>
+
+    </fieldset>
+
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'things-property-data',
+
+        behaviors: [
+          Polymer.IronResizableBehavior
+        ],
+
+        properties: {
+          model: {
+            // type: Array,
+            notify: true,
+            value: []
+          },
+
+          config: {
+            type: Object,
+            value: {
+              rowIndicator: {
+                  displayValue: DataLudi.RowIndicatorValue.ROW_INDEX,
+                  minWidth: 20,
+                  rowIndexBase: 0
+              },
+              footer: {
+                visible: false
+              },
+              displayOptions: {
+                rowHoverMask: true,
+                fitStyle: DataLudi.GridFitStyle.EVEN
+              },
+              editOptions: {
+                autoCommit: true,
+                insertable: true,
+                appendable: true,
+                erasable: true,
+                appendWhenExitLast: true,
+                // enterToNextRow: true,
+                enterToTab: true,
+                insertByCell: true,
+                crossWhenExitFirst: true,
+                crossWhenExitLast: true,
+                commitOnLastCell: true,
+                selectionBasePaste: true,
+                deletable: true
+              },
+              options: {
+                vscrollBar: {
+                  visible: true,
+                  barWidth: 8,
+                  barIndent: "fixed",
+                  buttonLocation: 'hidden',
+                  styles: {
+                    background: "#10000000"
+                  }
+                },
+                hscrollBar: {
+                  visible: true,
+                  barWidth: 8,
+                  barIndent: "fixed",
+                  buttonLocation: 'hidden'
+                }
+              }
+            }
+          },
+
+          gridModel: {
+            value: [{
+              "fieldName": "__field1"
+            }, {
+              "fieldName": "__field2"
+            }, {
+              "fieldName": "__field3"
+            }, {
+              "fieldName": "__field4"
+            }, {
+              "fieldName": "__field5"
+            }, {
+              "fieldName": "__field6"
+            }, {
+              "fieldName": "__field7"
+            }, {
+              "fieldName": "__field8"
+            }, {
+              "fieldName": "__field9"
+            }, {
+              "fieldName": "__field10"
+            }, {
+              "fieldName": "__field11"
+            }, {
+              "fieldName": "__field12"
+            }]
+          },
+
+          columns: {
+            value : [1,2,3,4,5,6,7,8,9,10,11,12].map(function(i) {
+              return {
+                "name": "field" + i,
+                "fieldName": "__field" + i,
+                // "width": "90",
+                "header": {
+                  "text": "Field " + i
+                }
+              }
+            })
+          }
+        },
+
+        observers: [
+          'onModelChanged(model)',
+          'onMappingChanged(mapping.*)',
+          'onCurrentMappingIndexChanged(currentMappingIndex)'
+        ],
+
+        listeners: {
+          'iron-resize': '_onIronResize'
+        },
+
+        onModelChanged: function(model) {
+          /* this.currentMappingIndex 의 강제 변경을 일으킴 */
+          this.currentMappingIndex = null
+          this.currentMappingIndex = 0
+          if(!model.data)
+            this.set('model.data', [{}])
+        },
+
+        onMappingChanged: function(change) {
+
+          var last = -1
+          var mappings = (this.model.mappings && this.model.mappings.slice()) || []
+
+          for(let i = 0;i < 7;i++) {
+            var mapping = mappings[i]
+            var tab = this.$$(`paper-tab[data-mapping="${i + 1}"]`)
+
+            if(mapping) {
+              tab.active = true
+              tab.disabled = false
+              tab.setAttribute('has-set', true)
+
+              last = i
+            } else {
+              tab.active = false
+              tab.removeAttribute('has-set')
+              tab.disabled = (last < i - 1)
+            }
+          }
+
+          if(change.path === 'mapping') {
+            if(this.mapping && this.mapping.target) {
+              let targets = this.scene && this.scene.findAll(this.mapping.target, this.scene.selected[0]).forEach((c, i) => {
+                if(i == 0)
+                  c.trigger('tagreset')
+                c.trigger('tag', {})
+              })
+            }
+            return
+          }
+
+          var mapping = this.mapping
+
+          if(mapping.target && mapping.property && mapping.rule) {
+            mappings[this.currentMappingIndex] = mapping
+          }
+          else
+            mappings[this.currentMappingIndex] = null
+
+          this.set('model.mappings', mappings.filter(function(m) { return !!m }))
+        },
+
+        onCurrentMappingIndexChanged: function(currentMappingIndex) {
+          var mappings = this.model.mappings || []
+
+          this.mapping = mappings[currentMappingIndex] || {
+            rule: 'value'
+          }
+        },
+
+        onThingsGridConfigured: function(e) {
+          this.grid = e.detail
+          var self = this
+
+          // 마우스가 grid 밖으로 나갈 때 edit이 완료 되는 문제때문에...
+          this.$$('#grid')._onMouseout = function(){};
+
+          this.$$('#grid').dataSet.onDataChanged = function(ds) {
+            self.set('model.data', ds.getRowObjects())
+          }
+        },
+
+        _onIronResize: function(e) {
+          this.grid && this.grid.resetSize()
+        }
+      })
+
+    })();
+
+  </script>
+</dom-module>

@@ -1,0 +1,184 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="./things-modeler-htoolbar.html">
+<link rel="import" href="./things-modeler-vtoolbar.html">
+<link rel="import" href="./things-modeler-scene.html">
+<link rel="import" href="./things-modeler-property.html">
+
+<link rel="import" href="../things-util.html">
+
+<dom-module id="things-modeler">
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+      }
+      div {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+      }
+      things-modeler-scene {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex)
+      }
+
+      *::shadow {
+        -webkit-user-select: none;
+           -moz-user-select: none;
+            -ms-user-select: none;
+                user-select: none;
+      }
+
+    </style>
+
+    <things-modeler-htoolbar id="htoolbar"
+                             scene="[[scene]]"
+                             selected="[[selected]]"
+                             hide-property="{{hideProperty}}"
+                             show-center-control="{{showCenterControl}}"
+                             label-name=[[label.name]]>
+    </things-modeler-htoolbar>
+
+    <div>
+
+      <things-modeler-vtoolbar scene="[[scene]]"
+                               mode="{{mode}}">
+      </things-modeler-vtoolbar>
+
+      <things-modeler-scene id="modeler-scene"
+                            model="[[model]]"
+                            label="[[targetLabel]]"
+                            label-id="{{labelId}}"
+                            scene="{{scene}}"
+                            scenemap="{{scenemap}}"
+                            selected="{{selected}}"
+                            mode="{{mode}}"
+                            show-center-control="[[showCenterControl]]"
+                            overlay="[[overlay]]"
+                            route="[[route]]"
+                            provider="[[provider]]"
+                            >
+      </things-modeler-scene>
+
+      <things-modeler-property id="property"
+                               scene="[[scene]]"
+                               scenemap="[[scenemap]]"
+                               selected="[[selected]]"
+                               collapse="[[hideProperty]]">
+      </things-modeler-property>
+
+    </div>
+
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'things-modeler',
+
+        behaviors: [
+          Things.MsgBoxBehavior
+        ],
+
+        properties: {
+          baseUrl: {
+            notify: true
+          },
+          scene: {
+            notify: true
+          },
+          label: {
+            type: Object,
+            notify: true,
+            observer: 'onLabelChanged'
+          },
+          labelId: {
+            notify: true
+          },
+          screen: {
+            notify: true
+          },
+          model: {
+            notify: true,
+            computed: 'evalModel(targetLabel)'
+          },
+          hideProperty: {
+            type: Boolean,
+            value: false
+          },
+          route: {
+            observer: 'onRouteChanged'
+          },
+          overlay: String,
+          targetLabel: Object,
+          provider: {
+            type: Object
+          }
+        },
+
+        evalModel: function(label) {
+          if(label.model)
+            return eval("(" + label.model + ")")
+
+          return {
+            components: [],
+            variables: []
+          }
+        },
+
+        _resetScene: function() {
+          if(this.route !== this.getAttribute('data-route'))
+            return;
+
+          if(this._resetSceneRequired)
+            this._resetSceneRequired = false;
+          else
+            return;
+
+          if(!this.label)
+            return;
+
+          if(this.label.status != 'EDIT')
+            this.overlay = '이 Scene은 ' + this.label.status + ' 상태이므로\n더 이상 수정할 수 없습니다.';
+          else
+            this.overlay = '';
+
+          this.targetLabel = Object.deepClone(this.label)
+        },
+
+        /**
+         * 두가지 조건이 만족되었을 때에 모델러가 동작한다.
+         * - 조건1. 라우트가 모델러에 들어온 상태이어야 한다.
+         * - 조건2. 라벨이 설정되어 있어야 한다.
+         */
+        onLabelChanged: function(label) {
+          this._resetSceneRequired = true;
+
+          this._resetScene()
+        },
+
+        onRouteChanged: function(route) {
+
+          // route가 바뀌면 modelChange를 발생시키기 위해
+          this._resetSceneRequired = true;
+
+          this._resetScene()
+        }
+
+
+        // onSceneWheel : function(e){
+        //   this.$.htoolbar._flagWheelByModelerScene = true
+        //   this.$.htoolbar.zoom = Math.round(this.scene.scale.x * 10) / 10
+        // }
+
+      });
+    })();
+  </script>
+</dom-module>

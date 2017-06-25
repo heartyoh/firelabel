@@ -1,0 +1,691 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../bower_components/things-designer-elements/things-editor-value.html">
+
+<link rel="import" href="../things-util.html">
+
+<dom-module id="things-property-variable">
+  <template>
+    <style>
+      :host {
+        @apply(--things-properties-panel);
+      }
+      label{
+        @apply(--things-label);
+      }
+      input{
+        @apply(--things-input);
+      }
+      fieldset{
+        @apply(--things-fieldset);
+      }
+      legend{
+        @apply(--things-fieldset-legend);
+      }
+      select{
+        @apply(--things-select);
+        background:url(/images/bg-input-select.png) 100% 50% no-repeat #fff;
+      }
+      ul{
+        margin-top:-7px;
+        padding:0 10px 7px 10px;
+        overflow:hidden;
+      }
+      fieldset li{
+        @apply(--things-variable-item);
+      }
+      fieldset li[active],fieldset li[focused]{
+        background-color:var(--things-error-color);
+        color:#fff;
+      }
+      fieldset legend a{
+        @apply(--things-variable-add-btn);
+      }
+      fieldset li a{
+        @apply(--things-variable-item-del-btn);
+      }
+      paper-tabs{
+        width:229px;height:25px;
+        margin:5px 0 0 7px;
+        border:1px solid rgba(0,0,0,.2);
+        border-width:1px 1px 0 1px;
+      }
+      paper-tabs::shadow #selectionBar.paper-tabs{background-color:transparent;}
+      paper-tab{
+        background-color:rgba(0,0,0,.2);
+        border:1px solid rgba(0,0,0,.07);
+        border-width:0 1px 0 0;
+        padding:0 5px;
+        color:#fff;
+        font-size:13px;
+      }
+      paper-tab[disabled]{background-color:rgba(0,0,0,.1);}
+      paper-tab:last-child{border-width:0;}
+      paper-tab.iron-selected{
+        background-color:rgba(255,255,255,.5);
+        color:#585858;
+      }
+      [has-set]:before{
+        content:"";
+        position:relative;
+        left:3px;
+        width:5px;height:5px;
+        display:inline-block;
+        border-radius:50%;
+        background-color:#4caf50;
+      }
+
+      #grid{
+        width:253px;height: 300px;
+        margin:-10px 0 10px 7px;padding:0px;
+        border:1px solid rgba(0,0,0,.2);
+      }
+
+    </style>
+
+    <fieldset>
+      <legend>
+        <things-i18n-msg msgid="label.variable-list" auto>variable list</things-i18n-msg>
+        <a href="#" onclick="return false" on-tap="onTapAdd">
+          <things-i18n-msg msgid="label.add" auto>+ Add</things-i18n-msg>
+        </a>
+      </legend>
+      <ul id="variable-list">
+        <template id="variable-list-template" is="dom-repeat" items="[[variables]]">
+          <li data-variable$="[[item.key]]">[[item.key]]
+            <a href="#" onclick="return false" on-tap="onTapDelete">x</a>
+          </li>
+        </template>
+      </ul>
+    </fieldset>
+
+    <template id="variable-template" is="dom-if" if="[[variable]]">
+
+      <fieldset>
+        <legend>
+          <things-i18n-msg msgid="label.variable" auto>variable</things-i18n-msg>
+          <a href="#" onclick="return false" on-tap="onCopy">
+            <things-i18n-msg msgid="copy" auto>COPY</things-i18n-msg>
+          </a>
+        </legend>
+        <label>
+          <things-i18n-msg msgid="label.key" auto>key</things-i18n-msg>
+        </label>
+        <input data-variable-key type="text" value="{{variable.key::change}}"/>
+        <label>
+          <things-i18n-msg msgid="label.type" auto>type</things-i18n-msg>
+        </label>
+        <select value="{{variable.type::change}}">
+           <option>
+            <things-i18n-msg msgid="label.string" auto>string</things-i18n-msg>
+          </option>
+          <option>
+            <things-i18n-msg msgid="label.number" auto>number</things-i18n-msg>
+          </option>
+          <option>
+            <things-i18n-msg msgid="label.boolean" auto>boolean</things-i18n-msg>
+          </option>
+          <option>
+            <things-i18n-msg msgid="label.object" auto>object</things-i18n-msg>
+          </option>
+          <option>
+            <things-i18n-msg msgid="label.array" auto>array</things-i18n-msg>
+          </option>
+        </select>
+        <label>
+          <things-i18n-msg msgid="label.value" auto>value</things-i18n-msg>
+        </label>
+
+        <template is="dom-if" if="[[!_isComplexType(variable.type)]]">
+          <input type="text" value="{{variable.value::change}}"/>
+        </template>
+        <template is="dom-if" if="[[_isComplexType(variable.type)]]">
+          <things-basic-grid
+            id="grid"
+            fixed-column-count="0"
+            model="[[model]]"
+            columns="[[columns]]"
+            config="[[config]]"
+            data="{{gridData}}"
+            on-things-grid-event-configured="onThingsGridConfigured"
+            >
+          </things-basic-grid>
+        </template>
+      </fieldset>
+
+      <fieldset>
+        <legend>
+          <things-i18n-msg msgid="label.mapping" auto>Mapping</things-i18n-msg>
+        </legend>
+
+        <paper-tabs selected="{{currentMappingIndex}}">
+          <paper-tab data-mapping="1">1</paper-tab>
+          <paper-tab data-mapping="2">2</paper-tab>
+          <paper-tab data-mapping="3">3</paper-tab>
+          <paper-tab data-mapping="4">4</paper-tab>
+          <paper-tab data-mapping="5">5</paper-tab>
+          <paper-tab data-mapping="6">6</paper-tab>
+          <paper-tab data-mapping="7">7</paper-tab>
+        </paper-tabs>
+
+        <things-editor-value mapping="{{mapping}}"
+                             type="[[variable.type]]">
+        </things-editor-value>
+
+      </fieldset>
+    </template>
+
+
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'things-property-variable',
+
+        behaviors: [
+          Polymer.IronResizableBehavior
+        ],
+
+        properties: {
+          scene: {
+            notify: true
+          },
+          variables: {
+            type: Array,
+            notify: true
+          },
+          columns : {
+            type: Array,
+            value: []
+          },
+          model: {
+            type: Array,
+            notify: true,
+            value: []
+          },
+          config: {
+            type: Object,
+            value: {
+              rowIndicator: {
+                  displayValue: DataLudi.RowIndicatorValue.ROW_INDEX,
+                  minWidth: 20,
+                  rowIndexBase: 0
+              },
+              footer: {
+                visible: false
+              },
+              displayOptions: {
+                rowHoverMask: true,
+                fitStyle: DataLudi.GridFitStyle.EVEN
+              },
+              editOptions: {
+                autoCommit: true,
+                insertable: true,
+                appendable: true,
+                erasable: true,
+                appendWhenExitLast: true,
+                // enterToNextRow: true,
+                enterToTab: true,
+                insertByCell: true,
+                crossWhenExitFirst: true,
+                crossWhenExitLast: true,
+                commitOnLastCell: true,
+                selectionBasePaste: true,
+                deletable: true
+              },
+              options: {
+                vscrollBar: {
+                  visible: true,
+                  barWidth: 8,
+                  barIndent: "fixed",
+                  buttonLocation: 'hidden',
+                  styles: {
+                    background: "#10000000"
+                  }
+                },
+                hscrollBar: {
+                  visible: true,
+                  barWidth: 8,
+                  barIndent: "fixed",
+                  buttonLocation: 'hidden'
+                }
+              }
+            }
+          },
+          gridData: {
+            type: Array,
+            notify: true,
+            value: [{}]
+          }
+        },
+
+        observers: [
+          'onSceneChanged(scene)',
+          'onVariablesChanged(variables)',
+          'onVariableChanged(variable.*)',
+          'onMappingChanged(mapping.*)',
+          'onCurrentMappingIndexChanged(currentMappingIndex)',
+          'onModelChanged(model)',
+          'onColumnsChanged(columns)'
+        ],
+
+        listeners: {
+          'variable-list.tap': 'onTapVariable',
+          'iron-resize': '_onIronResize'
+        },
+
+        onSceneChanged: function(scene, before) {
+          this.changedByScene = true
+
+          if(before) {
+            before.root.off('change', this._onRootModelChangedB, this)
+          }
+          if(scene) {
+            scene.root.on('change', this._onRootModelChangedB, this)
+          }
+
+          this.variable = null
+          this.variables = (scene && scene.model && scene.model.variables) || []
+
+          this.changedByScene = false
+        },
+
+        _onRootModelChangedB: function(after, before) {
+          if(this.changedByThis)
+            return
+
+          // Variable 변경 undo/redo 기능을 위해서 필요한 부분임.
+          // 아래 로직은 Undo 또는 Redo에 의해서 Scene내부에서 변경되는 경우만 실행된다.
+          this.changedByScene = true
+          if(after.variables) {
+            this.variable = null
+            this.variables = after.variables
+          }
+          this.changedByScene = false
+        },
+
+        onVariablesChanged: function(after) {
+          /*
+           * 사용자가 의도적으로 변수를 변경한 경우에만, scene에 변경된 변수모델을 반영해준다.
+           * 그 밖에, 사용자가 선택한 컴포넌트가 바뀐 경우나 Redo/Undo에 의해서도 호출되므로, 이 경우는 제외한다.
+           */
+          if(this.scene && !this.changedByScene) {
+            /* 변화된 variables를 모델에 반영해준다. */
+            this.changedByThis = true
+            this.scene.variableModel = this.variables
+            this._resetActiveVariable()
+            this.changedByThis = false
+          }
+        },
+
+        onVariableChanged: function(change) {
+          if(!this.variable) {
+            this.mapping = null
+            this.currentMappingIndex = null
+            return
+          }
+
+          this.variable.name = this.variable.key
+
+          if(change.path === 'variable') {
+            if(this._isComplexType(this.variable.type)) {
+              this.set('model', this._getGridModel(this.variable.type))
+              this.set('columns', this._getGridColumns(this.variable.type))
+              var value = this.variable.value || [{}]
+              if(this.variable.type == 'object') {
+                value = this._fromObject(value)
+              }
+              this.set('gridData', Object.deepClone(value))
+            }
+
+            /* this.currentMappingIndex 의 강제 변경을 일으킴 */
+            this.set('currentMappingIndex', null)
+            this.set('currentMappingIndex', 0)
+          }
+
+          if(change.path == 'variable.type') {
+            if(this._isComplexType(this.variable.type)) {
+              this.set('model', this._getGridModel(this.variable.type))
+              this.set('columns', this._getGridColumns(this.variable.type))
+              var value = this.variable.value || [{}]
+              if(this.variable.type == 'object') {
+                value = this._fromObject(value)
+              }
+              this.set('gridData', Object.deepClone(value))
+            }
+          }
+
+          if(!this.variables.includes(this.variable)) {
+            if(this.variable.key) {
+              /* 최소한 key는 있어야 함. */
+              this.variables.push(this.variable)
+            } else {
+              this._resetActiveVariable()
+
+              return
+            }
+          } else {
+            if(!this.variable.key) {
+              var index = this.variables.indexOf(this.variable)
+              this.variables.splice(index, 1)
+            }
+          }
+          this.variables = this.variables.slice()
+        },
+
+        onMappingChanged: function(change) {
+
+          if(!this.variable)
+            return
+
+          var self = this
+
+          setTimeout(function() {
+            var last = -1
+
+            for(var i = 0;i < 7;i++) {
+              var mapping = self.variable.mappings[i]
+              var tab = self.querySelector(`paper-tab[data-mapping="${i + 1}"]`)
+
+              if(mapping) {
+                tab.active = true
+                tab.disabled = false
+                tab.setAttribute('has-set', true)
+
+                last = i
+              } else {
+                tab.active = false
+                tab.removeAttribute('has-set')
+                tab.disabled = (last < i - 1)
+              }
+            }
+          }, 10)
+
+          if(change.path === 'mapping')
+            return
+
+          var mappings = (this.variable.mappings && this.variable.mappings.slice()) || []
+          var mapping = this.mapping
+
+          if(mapping.target && mapping.property && mapping.rule) {
+            mappings[this.currentMappingIndex] = mapping
+          } else {
+            mappings[this.currentMappingIndex] = null
+          }
+
+          this.set('variable.mappings',
+            mappings.filter(function(m) { return !!m })
+          )
+
+          this.scene.play()
+        },
+
+        onCurrentMappingIndexChanged: function(currentMappingIndex) {
+          if(!this.variable) {
+            this.currentMappingIndex = null
+            this.mapping = null
+            return
+          }
+
+          if(!this.variable.mappings)
+            this.variable.mappings = []
+
+          this.mapping = this.variable.mappings[currentMappingIndex] || {
+            rule: 'value'
+          }
+
+          if(this.mapping.target) {
+            this.scene.select(this.mapping.target)
+          } else {
+            this.scene.select('')
+          }
+        },
+
+        onTapVariable: function(e) {
+          var variable = e.target;
+
+          while (!variable.hasAttribute('data-variable') && variable !== document.body)
+            variable = variable.parentElement;
+
+          var variable_key = variable.getAttribute('data-variable')
+
+          if(typeof(variable_key) !== 'undefined') {
+
+            for(var i = 0;i < this.variables.length;i++) {
+              if(this.variables[i].key === variable_key) {
+                this.variable = this.variables[i]
+                return
+              }
+            }
+          }
+        },
+
+        onTapAdd: function() {
+          this.variable = {}
+
+          this.querySelector('[data-variable-key]').focus()
+        },
+
+        onCopy: function() {
+          var clone = Object.deepClone(this.variable)
+          clone.key = this.variable.key + '_copied'
+
+          this.variable = clone
+
+          this.querySelector('[data-variable-key]').focus()
+        },
+
+        onTapDelete: function(e) {
+          var variable = e.target;
+
+          while (!variable.hasAttribute('data-variable') && variable !== document.body)
+            variable = variable.parentElement;
+
+          var variable_key = variable.getAttribute('data-variable')
+
+          if(typeof(variable_key) !== 'undefined') {
+
+            for(var i = 0;i < this.variables.length;i++) {
+              if(this.variables[i].key === variable_key) {
+                this.variables.splice(i, 1)
+
+                if(this.variable && this.variable.key == variable_key)
+                  this.variable = null
+
+                this.variables = this.variables.slice()
+
+                this._resetActiveVariable()
+                return
+              }
+            }
+          }
+        },
+
+        onThingsGridConfigured: function(e) {
+          var self = this
+
+          // 마우스가 grid 밖으로 나갈 때 edit이 완료 되는 문제때문에...
+          this.$$('#grid')._onMouseout = function(){};
+
+          this.$$('#grid').dataSet.onDataChanged = function(ds){
+            var data = ds.getRowObjects()
+            if(self.variable.type == 'object') {
+              data = self._toObject(data)
+            }
+            // var arrayValue = self._toObject(objectData)
+            self.set('variable.value', data)
+          }
+        },
+
+        onModelChanged: function(model) {
+          var grid = this.querySelector('#grid')
+          if(!grid)
+            return
+
+          grid._setGridModel(model)
+        },
+
+        onColumnsChanged: function(columns) {
+          var grid = this.querySelector('#grid')
+          if(!grid)
+            return
+
+          grid._setGridColumns(columns)
+        },
+
+        _resetActiveVariable: function() {
+
+          /* 아래 줄은 변수의 이름 변경을 실시간으로 반영하기 위한 코드임 */
+          this.$['variable-list-template'].items = []
+          this.$['variable-list-template'].render()
+          this.$['variable-list-template'].items = this.variables
+          this.$['variable-list-template'].render()
+          /* 아래 줄은 변수의 이름 변경을 실시간으로 반영하기 위한 코드임 - 여기까지. */
+
+          var oldfocused = this.querySelector('li[focused]')
+          var newfocused = this.variable && this.variable.key ?
+            this.querySelector(`li[data-variable="${this.variable.key}"]`) : null
+
+          this.attributeFollows('focused', newfocused, oldfocused)
+        },
+
+        _getGridColumns: function(type) {
+          var columns = []
+
+          if(type == 'object') {
+            columns = [{
+              "name": "key",
+              "fieldName": "__key",
+              // "width": "90",
+              "header": {
+                "text": "Key"
+              }
+            }, {
+              "name": "value",
+              "fieldName": "__value",
+              // "width": "90",
+              "header": {
+                "text": "Value"
+              }
+            }]
+          } else if (type == 'array') {
+            for(var i = 0; i < 12; i++) {
+              let column = {
+                "name": "field" + (i+1),
+                "fieldName": "__field" + (i+1),
+                // "width": "90",
+                "header": {
+                  "text": "Field " + (i+1)
+                }
+              }
+
+              columns.push(column)
+            }
+          }
+
+          return columns
+        },
+
+        _toObject: function(array) {
+          if(!array || array.length === 0)
+            return null
+
+          let value = {}
+
+          for(var i = 0; i < array.length; i++) {
+            var key = array[i]["__key"]
+            var val = array[i]["__value"]
+            value[key] = val
+          }
+
+          return value
+        },
+
+        _fromObject: function(obj) {
+          if(!obj)
+            return []
+
+          let value = []
+
+          for(var key in obj) {
+            let val = obj[key]
+
+            if(key != undefined && val != undefined) {
+              let object = {
+                __key: key,
+                __value: val
+              }
+              value.push(object)
+            }
+          }
+
+          return value
+        },
+
+        _isComplexType: function(type) {
+          if(type == 'array' || type == 'object')
+            return true
+
+          return false
+        },
+
+        _getGridModel: function(type) {
+          var model = []
+          if(type == 'object') {
+            model = [{
+              "fieldName": "__key"
+            }, {
+              "fieldName": "__value"
+            }]
+          } else if (type == 'array') {
+            model = [{
+              "fieldName": "__field1"
+            }, {
+              "fieldName": "__field2"
+            }, {
+              "fieldName": "__field3"
+            }, {
+              "fieldName": "__field4"
+            }, {
+              "fieldName": "__field5"
+            }, {
+              "fieldName": "__field6"
+            }, {
+              "fieldName": "__field7"
+            }, {
+              "fieldName": "__field8"
+            }, {
+              "fieldName": "__field9"
+            }, {
+              "fieldName": "__field10"
+            }, {
+              "fieldName": "__field11"
+            }, {
+              "fieldName": "__field12"
+            }]
+          }
+
+          return model;
+        },
+
+        _onIronResize: function(e) {
+          // this.querySelectorAll('things-basic-grid').forEach(function(basicGrid) {
+            // basicGrid.grid.resetSize()
+          // })
+        }
+      })
+
+    })();
+
+  </script>
+</dom-module>

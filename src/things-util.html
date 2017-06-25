@@ -1,0 +1,14 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+<script>
+
+Object.deepClone = function(o) {
+  return JSON.parse(JSON.stringify(o))
+}
+
+Object.deepEquals = function(o1, o2) {
+  return JSON.stringify(o1) == JSON.stringify(o2)
+}
+</script>

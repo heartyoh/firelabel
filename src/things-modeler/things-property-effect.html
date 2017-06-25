@@ -1,0 +1,427 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
+<link rel="import" href="../../bower_components/things-designer-elements/things-editor-buttons-radio.html">
+<link rel="import" href="../../bower_components/things-designer-elements/things-editor-number-input.html">
+<link rel="import" href="../../bower_components/things-designer-elements/things-editor-angle-input.html">
+<link rel="import" href="../../bower_components/things-designer-elements/things-editor-shadow.html">
+<link rel="import" href="../../bower_components/things-designer-elements/things-editor-animation.html">
+
+<link rel="import" href="../things-util.html">
+
+<dom-module id="things-property-effect">
+  <template>
+    <style>
+      :host {
+        @apply(--things-properties-panel);
+      }
+      label{
+        @apply(--things-label);
+      }
+      input{
+        @apply(--things-input);
+      }
+      fieldset{
+        @apply(--things-fieldset);
+      }
+      legend{
+        @apply(--things-fieldset-legend);
+      }
+      select{
+        @apply(--things-select);
+        min-width:65%;
+        background:url(/images/bg-input-select.png) 100% 50% no-repeat #fff;
+      }
+
+      /* property에 있는 소스 똑같이 복붙 해서 온 거. */
+      fieldset paper-slider{
+        width:69%;height: 20px;
+        float:right;
+        margin:0 12px 10px 0;
+        --paper-slider-active-color:var(--things-primary-color);
+        --paper-slider-knob-color:var(--things-primary-color);
+      }
+      paper-slider::shadow #sliderContainer{
+        margin:0 9px 5px 7px !important;
+      }
+      paper-slider::shadow input{
+        border:1px solid #ccc !important;
+        background-color:#fff !important;
+        font-size:12px !important;
+        line-height:20px !important;
+      }
+      paper-slider::shadow paper-input{
+        overflow:initial !important;
+      }
+      paper-slider::shadow paper-input .underline{
+        display:none;
+      }
+      paper-slider::shadow #sliderKnobInner{
+        width:10px;height:10px;
+        margin-top:11px;
+      }
+      things-editor-color{
+        width:95px;
+      }
+      things-editor-color::shadow #text{
+        width:83%;
+      }
+
+
+      /**
+       *  임시 style
+       */
+
+      things-editor-buttons-radio paper-button{
+        background:url(/images/icon-properties.png) no-repeat;
+      }
+      things-editor-buttons-radio paper-button[data-value="rotation"]   {background: url(https://cdn0.iconfinder.com/data/icons/rotation/154/rotate-rotation-arrow-object-512.png) center/80% no-repeat;}
+      things-editor-buttons-radio paper-button[data-value="vibration"]   {background: url(https://cdn0.iconfinder.com/data/icons/phone-communication-glyph-black-ii/2048/476_-_Vibration_mode-512.png) center/80% no-repeat;}
+      things-editor-buttons-radio paper-button[data-value="heartbeat"]   {background: url(https://cdn2.iconfinder.com/data/icons/medicine-5-1/512/pulse-512.png) center/80% no-repeat;}
+      things-editor-buttons-radio paper-button[data-value="move"]   {background: url(https://cdn2.iconfinder.com/data/icons/designers-and-developers-icon-set/32/drag_and_drop-512.png) center/80% no-repeat;}
+      things-editor-buttons-radio paper-button[data-value="vertical"]   {background: url(https://cdn0.iconfinder.com/data/icons/cosmo-player/40/swap_vertical_1-512.png) center/80% no-repeat;}
+      things-editor-buttons-radio paper-button[data-value="horizontal"]   {background: url(https://cdn4.iconfinder.com/data/icons/epic-outlines/30/enlarge_horizontal-512.png) center/80% no-repeat;}
+      things-editor-buttons-radio paper-button[data-value="rotate"]   {background: url(https://cdn0.iconfinder.com/data/icons/rotation/154/rotate-rotation-arrow-object-512.png) center/80% no-repeat;}
+      things-editor-buttons-radio paper-button[active]{
+        border-color:#f2471c;
+        opacity:1;
+      }
+
+    </style>
+
+    <form class="content" method="post">
+
+      <fieldset>
+        <legend><things-i18n-msg msgid="label.shadow" auto>shadow</things-i18n-msg></legend>
+
+        <things-editor-shadow value="{{shadow}}" >
+        </things-editor-shadow>
+      </fieldset>
+
+
+      <fieldset>
+        <legend><things-i18n-msg msgid="label.retention" auto>retention</things-i18n-msg></legend>
+
+        <label>
+          <things-i18n-msg msgid="label.retention" auto>retention</things-i18n-msg>
+        </label>
+        <input is="things-editor-number-input" required number="{{model.retention::change}}" placeholder="ms">
+      </fieldset>
+
+      <fieldset>
+        <legend><things-i18n-msg msgid="label.animation" auto>animation</things-i18n-msg></legend>
+
+        <label>onCreate</label>
+        <select value="{{animation.oncreate.type::change}}">
+          <option value="">None</option>
+          <option value="rotation">Rotation</option>
+          <option value="vibration">Vibration</option>
+          <option value="heartbeat">Heartbeat</option>
+          <option value="moving">Moving</option>
+          <option value="outline">Outline</option>
+        </select>
+
+        <things-editor-animation value="{{animation.oncreate}}" >
+        </things-editor-animation>
+
+        <!-- <label>onChange</label>
+        <select value="{{animation.onchange.type::change}}">
+          <option value="">None</option>
+          <option value="rotation">Rotation</option>
+          <option value="vibration">Vibration</option>
+          <option value="heartbeat">Heartbeat</option>
+          <option value="moving">Moving</option>
+          <option value="outline">Outline</option>
+        </select>
+
+        <things-editor-animation value="{{animation.onchange}}" >
+        </things-editor-animation>
+ -->
+        <!-- <label>onDispose</label>
+        <select value="{{animation.ondispose.type::change}}">
+          <option value="">None</option>
+          <option value="rotation">Rotation</option>
+          <option value="vibration">Vibration</option>
+          <option value="heartbeat">Heartbeat</option>
+          <option value="moving">Moving</option>
+        </select> -->
+
+
+        <!--
+
+        <label>trigger</label>
+        <things-editor-buttons-radio value="{{animation.trigger}}">
+          <paper-button data-value="oncreate"></paper-button>
+          <paper-button data-value="onchange"></paper-button>
+        </things-editor-buttons-radio>
+
+        <label>target</label>
+        <input required value="{{animation.target::change}}">
+
+        <label>type</label>
+        <things-editor-buttons-radio value="{{animation.type}}">
+          <paper-button data-value="rotation"></paper-button>
+          <paper-button data-value="vibration"></paper-button>
+          <paper-button data-value="heartbeat"></paper-button>
+          <paper-button data-value="move"></paper-button>
+        </things-editor-buttons-radio>
+
+        <template is="dom-if" if="[[_isTypeOf(animation.type, 'rotation')]]">
+          <label>Degree</label>
+          <input is="things-editor-angle-input" type="number" radian="{{animation.angle}}">
+        </template>
+        <template is="dom-if" if="[[_isTypeOf(animation.type, 'vibration')]]">
+          <label>Direction</label>
+          <things-editor-buttons-radio value="{{animation.direction}}">
+            <paper-button data-value="vertical"></paper-button>
+            <paper-button data-value="horizontal"></paper-button>
+            <paper-button data-value="rotate"></paper-button>
+          </things-editor-buttons-radio>
+          <label>Count</label>
+          <input is="things-editor-number-input" type="number" value-as-number="{{animation.count}}">
+          <label>Power</label>
+          <input is="things-editor-number-input" type="number" value-as-number="{{animation.power}}">
+        </template>
+        <template is="dom-if" if="[[_isTypeOf(animation.type, 'heartbeat')]]">
+          <label>Count</label>
+          <input is="things-editor-number-input" type="number" value-as-number="{{animation.count}}">
+          <label>Power</label>
+          <input is="things-editor-number-input" type="number" value-as-number="{{animation.power}}">
+        </template>
+        <template is="dom-if" if="[[_isTypeOf(animation.type, 'move')]]">
+          <label>Degree</label>
+          <input is="things-editor-angle-input" type="number" radian="{{animation.angle}}">
+          <label>Distance</label>
+          <input is="things-editor-number-input" type="number" value-as-number="{{animation.distance}}">
+        </template>
+
+        -->
+
+        <!-- 공통 속성 : reverse -->
+        <!-- rotation 속성 : 회전각도 -->
+        <!-- vibration 속성 : 진동방향(상하, 좌우, 회전), 진동 횟수, 강도(%) -->
+        <!-- heartbeat 속성 : 진동 횟수, 강도(%) -->
+        <!-- move 속성 : 진행 각도, 거리 -->
+
+        <!--
+
+        <label>delta</label>
+        <things-editor-buttons-radio value="{{animation.delta}}">
+          <paper-button data-value="linear"></paper-button>
+          <paper-button data-value="quad"></paper-button>
+          <paper-button data-value="circ"></paper-button>
+          <paper-button data-value="back"></paper-button>
+          <paper-button data-value="bounce"></paper-button>
+          <paper-button data-value="elastic"></paper-button>
+        </things-editor-buttons-radio>
+
+        <label>ease</label>
+        <things-editor-buttons-radio value="{{animation.ease}}">
+          <paper-button data-value="in"></paper-button>
+          <paper-button data-value="out"></paper-button>
+          <paper-button data-value="inout"></paper-button>
+        </things-editor-buttons-radio>
+
+        <label>
+          <things-i18n-msg msgid="label.duration" auto>duration</things-i18n-msg>
+        </label>
+        <input required value="{{animation.duration::change}}">
+
+        <label>
+          <things-i18n-msg msgid="label.repeat" auto>repeat</things-i18n-msg>
+        </label>
+        <input type="checkbox" checked="{{animation.repeat::change}}">
+
+        -->
+
+      </fieldset>
+
+      <fieldset>
+        <legend><things-i18n-msg msgid="label.hover-event" auto>hover event</things-i18n-msg></legend>
+
+        <label><things-i18n-msg msgid="label.emphasize" auto>emphasize</things-i18n-msg></label>
+        <input type="checkbox" checked="{{event.hover.emphasize::change}}"></input>
+
+        <label><things-i18n-msg msgid="label.variable" auto>variable</things-i18n-msg></label>
+        <select id="hover-select" value="{{event.hover.target::change}}">
+          <option value=""></option>
+          <template is="dom-repeat" items="[[variables]]">
+            <option value="[[item.key]]">[[item.key]]</option>
+          </template>
+        </select>
+
+        <label><things-i18n-msg msgid="label.value" auto>value</things-i18n-msg></label>
+        <input required value="{{event.hover.value::change}}">
+
+        <legend><things-i18n-msg msgid="label.tap-event" auto>tap event</things-i18n-msg></legend>
+
+        <label><things-i18n-msg msgid="label.variable" auto>variable</things-i18n-msg></label>
+        <select id="tap-select" value="{{event.tap.target::change}}">
+          <option value=""></option>
+          <option value="goto">goto</option>
+          <option value="stop-playing">stop playing</option>
+          <option value="link-open">link open</option>
+          <option value="link-href">link move</option>
+          <template is="dom-repeat" items="[[variables]]">
+            <option value="$[[item.key]]">$[[item.key]]</option>
+          </template>
+        </select>
+
+        <template is="dom-if" if="[[!_is(event.tap.target, 'stop-playing')]]">
+          <label><things-i18n-msg msgid="label.value" auto>value</things-i18n-msg></label>
+          <input required value="{{event.tap.value::change}}" placeholder="[[_getPlaceholder(event.tap.target)]]">
+        </template>
+
+      </fieldset>
+    </form>
+
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'things-property-effect',
+
+        properties: {
+          model: {
+            notify: true
+          },
+          animation: {
+            type: Object,
+            notify: true,
+            value: {}
+          },
+          event: {
+            type: Object,
+            notify: true,
+            value: {
+              hover: {},
+              tap: {}
+            }
+          }
+        },
+
+        observers: [
+          'onModelChanged(model)',
+          'onAnimationChanged(animation.*)',
+          'onEventChanged(event.*)',
+          'onShadowChanged(shadow.*)'
+        ],
+
+        listeners: {
+          'hover-select.tap': 'onOpenSelect',
+          'tap-select.tap': 'onOpenSelect',
+        },
+
+        onOpenSelect: function() {
+          this.variables = this.scene && this.scene.ids
+        },
+
+        onModelChanged: function(model) {
+
+          if(model) {
+            this.animation = Object.assign({
+              oncreate: {
+              // },
+              // ondispose: {
+              }
+            }, model.animation)
+
+            this.event = Object.assign({
+              hover: {},
+              tap: {}
+            }, model.event)
+
+            this.shadow = Object.assign({}, model.shadow)
+          }
+        },
+
+        onShadowChanged: function(change) {
+          if(change.path == 'shadow')
+            return
+
+          this.set('model.shadow', Object.assign({}, this.shadow))
+        },
+
+        onAnimationChanged: function(change) {
+          if(change.path == 'animation')
+            return
+
+          // for(var key in this.animation) {
+          //   var anim = this.animation[key]
+          //   this._setDefaults(anim);
+          // }
+
+          this.set('model.animation', Object.deepClone(this.animation))
+        },
+
+        onEventChanged: function(change) {
+          if(change.path == 'event')
+            return
+
+          this.set('model.event', Object.deepClone(this.event))
+
+        },
+
+        // _setDefaults: function(animType) {
+        //   switch(animType) {
+        //     case 'rotation' :
+        //       anim.type = 'rotation'
+        //       break;
+        //     case 'vibration' :
+        //       anim.type = 'vibration';
+        //       break;
+        //     case 'heartbeat' :
+        //       anim.type = 'heartbeat';
+        //       break;
+        //     case 'moving' :
+        //       anim.type = 'moving'
+        //       break;
+        //     case 'outline' :
+        //       anim.type = 'outline';
+        //       break;
+        //     default:
+        //       for(var key in anim) {
+        //         delete anim[key]
+        //       }
+        //       break;
+        //   }
+        // },
+
+        _isTypeOf: function(value, type) {
+          if(value == type)
+            return true
+        },
+
+        _getPlaceholder: function(target) {
+          var placeholder = ""
+          switch (target) {
+            case 'goto':
+              placeholder = "SCENE-100"
+              break;
+            case 'link-open':
+            case 'link-href':
+              placeholder = "http://www.hatiolab.com"
+              break;
+          }
+
+          return placeholder
+        },
+
+        _is: function(a, b) {
+          return a == b
+        }
+      })
+
+    })();
+
+  </script>
+</dom-module>

@@ -1,0 +1,352 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-right-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
+
+<link rel="import" href="./things-property-shape.html">
+<link rel="import" href="./things-property-style.html">
+<link rel="import" href="./things-property-effect.html">
+<link rel="import" href="./things-property-specific.html">
+<!-- <link rel="import" href="./things-property-variable.html"> -->
+<link rel="import" href="./things-property-data.html">
+
+<link rel="import" href="../things-util.html">
+
+<dom-module id="things-modeler-property">
+  <template>
+    <style>
+      :host {
+        border-left:1px solid var(--paper-blue-grey-100);
+        @apply(--things-properties-panel);
+        @apply(--layout-vertical);
+      }
+      paper-tabs{
+        @apply(--things-tabs);
+      }
+      paper-tab.iron-selected{
+        background-color:var(--paper-blue-grey-50);
+        border-right:1px solid rgba(0,0,0,.1);
+      }
+      paper-tabs iron-icon{
+        color:var(--things-primary-color);
+      }
+      iron-pages{
+        overflow:hidden;
+        overflow-y:auto;
+
+        @apply(--layout-flex);
+      }
+
+      things-editor-script{
+        width:94%;height:300px;
+        margin:-7px 0 7px 7px;
+        overflow:auto;
+      }
+    </style>
+
+    <paper-tabs selected="{{current}}" noink>
+      <paper-tab><iron-icon icon="icons:list"></iron-icon></paper-tab>
+      <paper-tab><iron-icon icon="icons:image:palette"></iron-icon></paper-tab>
+      <paper-tab><iron-icon icon="image:photo-filter"></iron-icon></paper-tab>
+      <paper-tab><iron-icon icon="image:tune"></iron-icon></paper-tab>
+      <paper-tab><iron-icon icon="icons:settings-brightness"></iron-icon></paper-tab>
+    </paper-tabs>
+
+    <iron-pages selected="{{current}}">
+      <things-property-shape model="{{model}}"
+                             bounds="{{bounds}}"
+                             selected="[[selected]]">
+      </things-property-shape>
+
+      <things-property-style model="{{model}}" scene="[[scene]]" selected="[[selected]]">
+      </things-property-style>
+
+      <things-property-effect model="{{model}}" scene="[[scene]]">
+      </things-property-effect>
+
+      <things-property-specific target="{{model}}" scene="[[scene]]"  selected="[[selected]]" props="[[specificProps]]">
+      </things-property-specific>
+
+      <template is="dom-if" if=[[_isIdentifiable(selected)]]>
+
+        <things-property-data selected="[[selected]]" model="{{model}}" scene="[[scene]]">
+        </things-property-data>
+
+        <!-- <things-property-variable scene="[[scene]]" variables="{{variables}}">
+        </things-property-variable> -->
+
+      </template>
+
+    </iron-pages>
+
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'things-modeler-property',
+
+        behaviors: [
+          Polymer.NeonAnimationRunnerBehavior
+        ],
+
+        properties: {
+          scene: {
+            type: Object
+          },
+
+          selected: {
+            type: Array,
+            observer: '_onSelectedChanged'
+          },
+
+          specificProps: {
+            type: Array,
+            notify: true,
+            value: []
+          },
+
+          propertyTarget: {
+            type: Object,
+            observer: '_onPropertyTargetChanged'
+          },
+
+          collapse: {
+            type: Boolean,
+            value: false,
+            observer: '_onCollapseChanged'
+          },
+
+          animationConfig: {
+            value: function() {
+              return {
+                'entry': {
+                  name: 'slide-from-right-animation',
+                  node: this
+                },
+                'exit': {
+                  name: 'slide-right-animation',
+                  node: this
+                }
+              }
+            }
+          }
+        },
+
+        listeners: {
+          'neon-animation-finish': '_onNeonAnimationFinish'
+        },
+
+        observers: [
+          '_onSceneChanged(scene)',
+          '_onModelChanged(model.*)',
+          '_onBoundsChanged(bounds.*)'
+        ],
+
+        ready: function() {
+          this.current = 0
+        },
+
+        _show: function() {
+          this.opened = true;
+          this.style.display = 'flex'
+
+          this.playAnimation('entry')
+        },
+
+        _hide: function() {
+          this.opened = false;
+
+          this.playAnimation('exit')
+        },
+
+        _onNeonAnimationFinish: function() {
+          if (!this.opened) {
+            this.style.display = 'none'
+          }
+
+          if(this.scenemap)
+            this.scenemap.resize()
+          else if(this.scene)
+            this.scene.resize()
+        },
+
+        _onCollapseChanged: function(after) {
+          if(after)
+            this._hide()
+          else
+            this._show()
+        },
+
+        _defaultPropertyTarget: function() {
+          if(!this.scene) {
+            this.propertyTarget = null
+            this.specificProps = []
+            this.model = {}
+            this.bounds = {}
+          } else {
+            this.propertyTarget = this.scene.root
+            this.specificProps = this.scene.root.nature.properties
+            this.model = Object.deepClone(this.propertyTarget.model)
+            this._setBounds(this.propertyTarget.bounds)
+          }
+        },
+
+        _onSceneChanged: function() {
+          this._defaultPropertyTarget()
+        },
+
+        _onModelChanged: function(change) {
+
+          /* 사용자가 선택한 컴포넌트가 바뀐 경우도 호출되므로, 이 경우는 제외한다. */
+          if(!this.scene || change.path === 'model' || this.changedByScene)
+            return
+
+          var self = this
+
+          if(this.propertyTarget) {
+            this.scene.undoableChange(function() {
+              self.propertyTarget.set(change.path.substr(6), change.value)
+            })
+            return
+          }
+
+          /* 여러 컴포넌트의 경우에 적용 */
+          this.scene.undoableChange(function() {
+            self.selected.forEach(function(component) {
+              component.set(change.path.substr(6), change.value)
+            })
+          })
+        },
+
+        _onBoundsChanged: function(change) {
+          /* 사용자가 선택한 컴포넌트가 바뀐 경우도 호출되므로, 이 경우는 제외한다. */
+          if(change.path === 'bounds' || this.changedByScene)
+            return
+
+          var self = this
+
+          if(this.propertyTarget) {
+            this.scene.undoableChange(function() {
+              self.propertyTarget.bounds = self.bounds
+            })
+
+            this.changedByScene = true
+            this._setBounds(this.propertyTarget.bounds)
+            this.changedByScene = false
+
+            return
+          }
+
+          /* 여러 컴포넌트의 경우에 적용 */
+          this.changedByScene = true
+
+          var bounds = {}
+          bounds[change.path.substr(7)] = change.value
+
+          this.scene.undoableChange(function() {
+            self.selected.forEach(function(component) {
+              component.bounds = Object.assign({}, component.bounds, bounds)
+            })
+          })
+
+          this.changedByScene = false
+        },
+
+        _onModelChangedB: function(after, before) {
+
+          this.changedByScene = true
+
+          for(var property in after) {
+            if(property)
+              this.set('model.' + property, after[property])
+          }
+
+          this._setBounds(this.propertyTarget.bounds)
+
+          this.changedByScene = false
+        },
+
+        _onSelectedChanged: function(after, before) {
+
+          this.changedByScene = true
+
+          if(after.length == 1) {
+
+            this.propertyTarget = after[0]
+            // 컴포넌트 특성 속성(specific properties)을 먼저 바꾸고, 모델을 바꾸어준다.
+            // 컴포넌트 속성에 따라 UI 컴포넌트가 준비되고, 이후에 모델값을 보여주도록 하기 위해서이다.
+            this.specificProps = this.propertyTarget.nature.properties
+            this.model = Object.deepClone(this.propertyTarget.model)
+            this._setBounds(this.propertyTarget.bounds)
+
+          } else if(after.length == 0) { // 선택이 안된 경우
+
+            this._defaultPropertyTarget()
+          } else { // 다중 선택된 경우
+
+            var type = after[0].model.type;
+            for(let i = 1;i < after.length;i++) {
+              if(after[i].model.type != type) {
+                type = undefined;
+                break;
+              }
+            }
+
+            this.propertyTarget = null
+
+            if(type)
+              this.specificProps = after[0].nature.properties;
+            else
+              this.specificProps = null
+
+            this.model = {
+              type: type,
+              alpha: 1
+            }
+            this.bounds = {}
+
+          }
+
+          this.changedByScene = false
+        },
+
+        _onPropertyTargetChanged: function(after, before) {
+          if(before) {
+            before.off('change', this._onModelChangedB, this)
+          }
+          if(after) {
+            after.on('change', this._onModelChangedB, this)
+          }
+        },
+
+        _setBounds(bounds) {
+          this.bounds = {
+            left: bounds.left,
+            top: bounds.top,
+            width: Math.round(bounds.width),
+            height: Math.round(bounds.height)
+          }
+        },
+
+        _isIdentifiable: function(selected) {
+          if(!selected || (selected.length == 1 && selected[0].isLayer()))
+            return false;
+
+          return true;
+        }
+
+      })
+
+    })();
+
+  </script>
+</dom-module>

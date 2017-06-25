@@ -37,21 +37,6 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
   </template>
 
   <script>
-    const EMPTY_MODEL = {
-      width: 800,
-      height: 600,
-      components: [{
-        type: 'text',
-        top: 30,
-        left: 30,
-        textAlign: 'left',
-        fontSize: '30',
-        fontFamily: 'serif',
-        fontColor: 'navy',
-        text: 'EMPTY'
-      }]
-    }
-
     class LabelPreview extends Polymer.Element {
 
       static get is() { return 'label-preview'; }
@@ -70,12 +55,27 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       _labelChanged(label) {
 
-        var copiedLabel = this.label || EMPTY_MODEL;
+        var copiedLabel = this.label || LabelPreview.EMPTY_MODEL;
 
         this.copiedLabel = JSON.parse(JSON.stringify(copiedLabel));
       }
 
     }
+
+    LabelPreview.EMPTY_MODEL = {
+      width: 800,
+      height: 600,
+      components: [{
+        type: 'text',
+        top: 30,
+        left: 30,
+        textAlign: 'left',
+        fontSize: '30',
+        fontFamily: 'serif',
+        fontColor: 'navy',
+        text: 'EMPTY'
+      }]
+    };
 
     window.customElements.define(LabelPreview.is, LabelPreview);
   </script>

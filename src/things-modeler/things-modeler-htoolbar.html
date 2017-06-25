@@ -1,0 +1,824 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<!-- 컨텍스트메뉴의 하위 메뉴가 있다는 의미로 사용되는 av:play-arrow 아이콘을 가져오기 위함임. -->
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+
+<dom-module id="things-modeler-htoolbar">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --paper-toolbar-height:45px;
+      }
+      paper-toolbar{
+        @apply(--things-modeler-htoolbar);
+      }
+      label{
+        @apply(--things-modeler-label);
+      }
+      paper-toolbar::shadow #topBar{
+        padding:0 5px;
+      }
+      paper-toolbar paper-icon-button{
+        padding:4px;
+        width:25px;height:25px;
+      }
+      paper-slider{
+        --paper-slider-active-color:#c79d64;
+        --paper-slider-knob-color:var(--paper-blue-grey-50);
+        padding:5px 0;
+        width:90px;
+      }
+      paper-slider::shadow #sliderBar #progressContainer{
+        background-color:#795b51
+      }
+      paper-slider::shadow #sliderBar{
+        margin-top:8px;padding:7px 0;
+      }
+      .vline{
+        @apply(--things-modeler-htoolbar-vline);
+      }
+      paper-slider::shadow #sliderKnobInner{
+        width:10px;height:10px;
+        margin-top:11px;
+        border:2px solid #6d471f !important;
+      }
+      paper-slider::shadow #sliderContainer{
+        margin:5px !important;
+      }
+      paper-slider::shadow paper-input{
+        overflow:initial !important;
+      }
+      paper-icon-button{background:url(/images/icon-htoolbar.png) no-repeat;opacity:.6;}
+      paper-icon-button:hover{opacity:1;}
+      #align-left{background-position:50% 3px}
+      #align-center{background-position:50% -47px}
+      #align-right{background-position:50% -97px}
+      #align-top{background-position:50% -147px}
+      #align-middle{background-position:50% -197px}
+      #align-bottom{background-position:50% -247px}
+      #undo{background-position:50% -597px}
+      #redo{background-position:50% -647px}
+      #front{background-position:50% -297px}
+      #back{background-position:50% -347px}
+      #forward{background-position:50% -397px}
+      #backward{background-position:50% -447px}
+      #symmetry-x{background-position:50% -497px}
+      #symmetry-y{background-position:50% -547px}
+      #group{background-position:50% -497px}
+      #ungroup{background-position:50% -547px}
+      #fullscreen{background-position:50% -697px}
+      #toggle-property{background-position:50% -697px;float:right;}
+      #zoomin{background-position:50% -747px}
+      #zoomout{background-position:50% -797px}
+      #fit-scene{background-position:40% -1497px}
+      #cut{background-position:50% -847px}
+      #copy{background-position:50% -897px}
+      #paste{background-position:50% -947px}
+      #delete{background-position:50% -997px}
+      #font-increase{background-position:50% -1047px}
+      #font-decrease{background-position:50% -1097px}
+      #style-copy{background-position:50% -1147px}
+      #context-menu{background-position:50% -697px}
+      #symmetry-x{background-position:50% -1197px}
+      #symmetry-y{background-position:50% -1247px}
+      #rotate-cw{background-position:50% -1297px}
+      #rotate-ccw{background-position:50% -1347px}
+      #distribute-horizontal{background-position:50% -1547px}
+      #distribute-vertical{background-position:40% -1598px}
+      #toggle-property{background-position:50% -1397px}
+      #fullscreen{
+        background:url(/images/icon-fullscreen.png) 50% 10px no-repeat;
+        @apply(--things-header-button);
+      }
+      #toggle-property{
+        background:url(/images/icon-collapse.png) 80% 10px no-repeat;
+        @apply(--things-header-button);
+      }
+      #toggle-property[active]{
+        background:url(/images/icon-collapse-active.png) 80% 10px no-repeat;
+      }
+    </style>
+
+    <paper-toolbar>
+      <label>{{labelName}}</label>
+
+      <paper-icon-button id="undo"
+                         title="undo"
+      ></paper-icon-button>
+      <paper-icon-button id="redo"
+                         title="redo"
+      ></paper-icon-button>
+
+      <span class="vline"></span>
+
+      <paper-icon-button id="cut"
+                         title="cut"
+      ></paper-icon-button>
+      <paper-icon-button id="copy"
+                         title="copy"
+      ></paper-icon-button>
+      <paper-icon-button id="paste"
+                         title="paste"
+      ></paper-icon-button>
+      <paper-icon-button id="delete"
+                         title="delete"
+      ></paper-icon-button>
+
+      <span class="vline"></span>
+
+      <paper-icon-button id="style-copy"
+                         title="style-copy"
+      ></paper-icon-button>
+
+      <span class="vline"></span>
+
+      <paper-icon-button data-align="left"
+                         id="align-left"
+                         title="align left"
+      ></paper-icon-button>
+      <paper-icon-button data-align="center"
+                         id="align-center"
+                         title="align center"
+      ></paper-icon-button>
+      <paper-icon-button data-align="right"
+                         id="align-right"
+                         title="align right"
+      ></paper-icon-button>
+
+      <paper-icon-button data-align="top"
+                         id="align-top"
+                         title="align top"
+      ></paper-icon-button>
+      <paper-icon-button data-align="middle"
+                         id="align-middle"
+                         title="align middle"
+      ></paper-icon-button>
+      <paper-icon-button data-align="bottom"
+                         id="align-bottom"
+                         title="align bottom"
+      ></paper-icon-button>
+
+      <paper-icon-button data-distribute="HORIZONTAL"
+                         id="distribute-horizontal"
+                         title="distribute horizontal"
+      ></paper-icon-button>
+
+      <paper-icon-button data-distribute="VERTICAL"
+                         id="distribute-vertical"
+                         title="distribute vertical"
+      ></paper-icon-button>
+
+      <span class="vline"></span>
+
+      <paper-icon-button id="front"
+                         data-zorder="front"
+                         title="bring to front"
+      ></paper-icon-button>
+      <paper-icon-button id="back"
+                         data-zorder="back"
+                         title="bring to back"
+      ></paper-icon-button>
+      <paper-icon-button id="forward"
+                         data-zorder="forward"
+                         title="bring forward"
+      ></paper-icon-button>
+      <paper-icon-button id="backward"
+                         data-zorder="backward"
+                         title="send backward"
+      ></paper-icon-button>
+
+      <span class="vline"></span>
+
+      <paper-icon-button id="symmetry-x"
+                         title="symmetry-x"
+      ></paper-icon-button>
+      <paper-icon-button id="symmetry-y"
+                         title="symmetry-y"
+      ></paper-icon-button>
+      <paper-icon-button id="rotate-cw"
+                         title="rotate-cw"
+      ></paper-icon-button>
+      <paper-icon-button id="rotate-ccw"
+                         title="rotate-ccw"
+      ></paper-icon-button>
+
+      <span class="vline"></span>
+
+      <paper-icon-button id="group"
+                         title="group"
+      ></paper-icon-button>
+      <paper-icon-button id="ungroup"
+                         title="ungroup"
+      ></paper-icon-button>
+
+      <span class="vline"></span>
+
+      <paper-icon-button id="font-increase"
+                         title="increase font"
+      ></paper-icon-button>
+      <paper-icon-button id="font-decrease"
+                         title="decrease font"
+      ></paper-icon-button>
+
+      <span class="vline"></span>
+
+      <!-- <paper-icon-button id="zoomout"
+                         data-zoom="zoomout"
+                         title="zoomout"
+      ></paper-icon-button>
+      <paper-slider id="zoom" min="0.3" max="7" max-markers="7" step="0.1" value="{{zoom::change}}"></paper-slider>
+      <paper-icon-button id="zoomin"
+                         data-zoom="zoomin"
+                         title="zoom in"
+      ></paper-icon-button> -->
+
+      <paper-icon-button id="fit-scene"
+                         title="fit scene"
+      ></paper-icon-button>
+
+<!--
+      <paper-menu-button vertical-align="top" vertical-offset="30" class="things-context-menu">
+        <paper-icon-button id="context-menu" class="dropdown-trigger"></paper-icon-button>
+        <paper-menu class="dropdown-content">
+          <paper-item>menu 1<span>ctrl+c</span></paper-item>
+          <paper-item>menu 2</paper-item>
+          <paper-item>menu 3<span>ctrl+a</span></paper-item>
+
+          <paper-menu-button horizontal-align="left" horizontal-offset="100">
+            <paper-item class="dropdown-trigger">menu 4 <iron-icon icon="av:play-arrow"></iron-icon></paper-item>
+            <paper-menu class="dropdown-content">
+              <paper-item>Share</paper-item>
+              <paper-item>Settings</paper-item>
+              <paper-item>Help</paper-item>
+            </paper-menu>
+          </paper-menu-button>
+
+          <paper-item>menu 5</paper-item>
+          <paper-item>menu 6</paper-item>
+        </paper-menu>
+      </paper-menu-button>
+ -->
+
+      <span class="title"></span>
+
+      <paper-icon-button id="fullscreen"
+                         title="fullscreen"
+      ></paper-icon-button>
+
+      <paper-icon-button id="toggle-property" title="toggle property panel" toggles="true"></paper-icon-button>
+
+    </paper-toolbar>
+
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'things-modeler-htoolbar',
+
+        properties: {
+          scene: {
+            type: Object,
+            notify: true,
+            observer: 'onSceneChanged'
+          },
+          selected: {
+            type: Array,
+            notify: true,
+            observer: 'onSelectedChanged'
+          },
+          zoom: {
+            notify: true,
+            value: 2,
+            observer: 'onZoomChanged'
+          },
+          hideProperty: {
+            type: Boolean,
+            notify: true,
+            value: false
+          },
+          showCenterControl: {
+            type: Boolean,
+            notify: true,
+            value: false
+          },
+          labelName: {
+            notify: true
+          },
+          variables: {
+            type: Object
+          }
+        },
+
+        listeners: {
+          'align-left.tap': 'onTapAlign',
+          'align-center.tap': 'onTapAlign',
+          'align-right.tap': 'onTapAlign',
+          'align-top.tap': 'onTapAlign',
+          'align-middle.tap': 'onTapAlign',
+          'align-bottom.tap': 'onTapAlign',
+          'undo.tap': 'onTapUndo',
+          'redo.tap': 'onTapRedo',
+          'front.tap': 'onTapZorder',
+          'back.tap': 'onTapZorder',
+          'forward.tap': 'onTapZorder',
+          'backward.tap': 'onTapZorder',
+          'fullscreen.tap': 'onTapFullscreen',
+          // 'zoomin.tap': 'onTapZoom',
+          // 'zoomout.tap': 'onTapZoom',
+          'cut.tap': 'onTapCut',
+          'copy.tap': 'onTapCopy',
+          'paste.tap': 'onTapPaste',
+          'delete.tap': 'onTapDelete',
+          'font-increase.tap': 'onTapFontIncrease',
+          'font-decrease.tap': 'onTapFontDecrease',
+          'group.tap': 'onTapGroup',
+          'ungroup.tap': 'onTapUngroup',
+          'symmetry-x.tap': 'onTapSymmetryX',
+          'symmetry-y.tap': 'onTapSymmetryY',
+          'rotate-cw.tap': 'onTapRotateCW',
+          'rotate-ccw.tap': 'onTapRotateCCW',
+          'toggle-property.tap': 'onTapToggle',
+          'fit-scene.tap': 'onTapFitScene',
+          'distribute-vertical.tap': 'onTapDistribute',
+          'distribute-horizontal.tap': 'onTapDistribute'
+          // 'show-center-control.tap': 'onTapShowCenterControl' -- Only for GMap Viewer
+        },
+
+        ready: function() {
+          // this.zooms = [0.3, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 10.0]
+
+          var self = this
+          setTimeout(function() {
+
+            var modelerScene = document.querySelector('things-modeler-scene');
+            var modelerHtoolbar = document.querySelector('things-modeler-htoolbar');
+            var sceneViewer = document.querySelector('things-scene-viewer');
+
+            var userOS = navigator.userAgent.indexOf("Mac") != -1 // OS가 맥인지 확인
+
+            modelerScene.addEventListener('keydown', function(e) {
+              self.onShortcut(e, userOS)
+              e.stopPropagation()
+              e.preventDefault()
+            })
+
+            modelerHtoolbar.addEventListener('keydown', function(e) {
+              self.onShortcut(e, userOS)
+              e.stopPropagation()
+              e.preventDefault()
+              sceneViewer.focus()
+            })
+          }, 100)
+        },
+
+        onShortcut: function(e, MacOS) {
+          if(MacOS)
+            var ctrlKey = e.metaKey
+          else
+            var ctrlKey = e.ctrlKey
+
+          var altKey = e.altKey
+          var shiftKey = e.shiftKey
+
+          switch(e.code) {
+          case 'KeyZ':
+            if(ctrlKey && !shiftKey)
+              this.onTapUndo()
+            else if(ctrlKey && shiftKey)
+              this.onTapRedo()
+            break
+          case 'KeyY':
+            if(ctrlKey && !shiftKey)
+              this.onTapRedo()
+            else if(altKey && shiftKey)
+              this.onTapSymmetryY()
+            break
+          case 'KeyC':
+            if(ctrlKey && !shiftKey)
+              this.onTapCopy()
+            else if(altKey && shiftKey)
+              this.onTapAlign('center')
+            break
+          case 'KeyX':
+            if(ctrlKey && !shiftKey)
+              this.onTapCut()
+            else if(altKey && shiftKey)
+              this.onTapSymmetryX()
+            break
+          case 'KeyV':
+            if(ctrlKey && !shiftKey)
+              this.onTapPaste()
+            else if(altKey && shiftKey)
+              this.onTapDistribute('VERTICAL')
+            break
+          case 'Delete':
+          case 'Backspace':
+              this.onTapDelete()
+            break
+          case 'KeyG':
+            if(ctrlKey && !shiftKey)
+              this.onTapGroup()
+            else if(ctrlKey && shiftKey)
+              this.onTapUngroup()
+            break
+          case 'KeyF':
+            if(ctrlKey && !shiftKey)
+              this.onTapZorder(forward)
+            else if(ctrlKey && shiftKey)
+              this.onTapZorder(front)
+            break
+          case 'KeyB':
+            if(ctrlKey && !shiftKey)
+              this.onTapZorder(backward)
+            else if(ctrlKey && shiftKey)
+              this.onTapZorder(back)
+            else if(altKey && shiftKey)
+              this.onTapAlign('bottom')
+            break
+          case 'Equal':
+            if(ctrlKey)
+              this.onTapZoom(zoomin)
+            break
+          case 'Minus':
+            if(ctrlKey)
+              this.onTapZoom(zoomout)
+            break
+          case 'KeyH':
+            if(ctrlKey && !shiftKey)
+              this.onTapToggle()
+            else if(altKey && shiftKey)
+              this.onTapDistribute('HORIZONTAL')
+            break
+          case 'F11':
+            this.onTapFullscreen()
+            break
+          case 'KeyS':
+            if(ctrlKey)
+              document.querySelector('things-modeler-scene').onTapSave()
+            break
+          case 'KeyP':
+            if(ctrlKey)
+              document.querySelector('things-modeler-scene').onTapPreview()
+            break
+          case 'KeyA':
+            if(ctrlKey)
+              this.onTapSelectAll()
+            break
+          case 'KeyL':
+            if(altKey && shiftKey)
+              this.onTapAlign('left')
+              break
+          case 'KeyR':
+            if(altKey && shiftKey)
+              this.onTapAlign('right')
+              break
+          case 'KeyM':
+            if(altKey && shiftKey)
+              this.onTapAlign('middle')
+              break
+          case 'KeyT':
+            if(altKey && shiftKey)
+              this.onTapAlign('top')
+              break
+          case 'KeyY':
+            if(altKey && shiftKey)
+              this.onTapSymmetryY()
+              break
+          case 'KeyD':
+            if(ctrlKey)
+              this.onTapFitScene()
+            break
+          case 'KeyE':
+            if(altKey && shiftKey)
+              this.onTapRotateCW()
+            break
+          case 'KeyW':
+            if(altKey && shiftKey)
+              this.onTapRotateCCW()
+            break
+          case 'Digit1':
+            if(ctrlKey)
+              console.log('MODEL', this.scene && this.scene.model)
+            break;
+          case 'Digit2':
+            if(ctrlKey)
+              console.log('SELECTED', this.scene && this.scene.selected)
+          }
+        },
+
+        onExecute: function(command, undoable, redoable) {
+
+          this.$.undo.disabled = !undoable
+          this.$.redo.disabled = !redoable
+        },
+
+        onUndo: function(undoable, redoable) {
+
+          this.$.undo.disabled = !undoable
+          this.$.redo.disabled = !redoable
+        },
+
+        onRedo: function(undoable, redoable) {
+
+          this.$.undo.disabled = !undoable
+          this.$.redo.disabled = !redoable
+        },
+
+        onZoomChanged: function(after, before) {
+          if(!this.scene)
+            return
+
+          if(this._flagWheelByModelerScene) {
+            this._flagWheelByModelerScene = false
+            return
+          }
+
+          // var scale = this.zooms[after]
+          var scale = this.zoom
+
+          this.scene.scale = {
+            x: scale,
+            y: scale
+          }
+        },
+
+        onSceneChanged: function(after, before) {
+
+          if(before) {
+            before.off('execute', this.onExecute, this)
+            before.off('undo', this.onUndo, this)
+            before.off('redo', this.onRedo, this)
+          }
+
+          if(after) {
+            after.on('execute', this.onExecute, this)
+            after.on('undo', this.onUndo, this)
+            after.on('redo', this.onRedo, this)
+          }
+
+          this.zoom = 2
+        },
+
+        onSelectedChanged: function(after, before) {
+
+          var alignable = after.length > 1
+
+          this.$['align-left'].disabled = !alignable
+          this.$['align-center'].disabled = !alignable
+          this.$['align-right'].disabled = !alignable
+          this.$['align-top'].disabled = !alignable
+          this.$['align-middle'].disabled = !alignable
+          this.$['align-bottom'].disabled = !alignable
+
+          var movable = after.length === 1
+
+          /* forward, backward 이동은 한 컴포넌트만 가능하다. */
+          this.$['forward'].disabled = !movable
+          this.$['backward'].disabled = !movable
+
+          /* 여러 컴포넌트는 front, back 이동이 가능하다. */
+          this.$['front'].disabled = !(alignable || movable)
+          this.$['back'].disabled = !(alignable || movable)
+        },
+
+        onTapUndo: function(e) {
+          this.scene && this.scene.undo()
+       },
+
+        onTapRedo: function(e) {
+          this.scene && this.scene.redo()
+        },
+
+        onTapCut: function(e) {
+          this.scene && this.scene.cut()
+        },
+
+        onTapCopy: function(e) {
+          this.scene && this.scene.copy()
+        },
+
+        onTapPaste: function(e) {
+          this.scene && this.scene.paste()
+        },
+
+        onTapDelete: function(e) {
+          this.scene && this.scene.remove()
+        },
+
+        onTapSelectAll: function(e) {
+          this.scene.select('(child)');
+        },
+
+        onTapFontIncrease: function(e) {
+          var selected = this.scene.selected
+
+          this.scene.undoableChange(function() {
+            selected.forEach(function(component) {
+
+              var fontSize = component.get('fontSize')
+
+              if(!fontSize)
+                fontSize = "15"
+
+              if(fontSize) {
+                var size = parseInt(fontSize)
+                component.set('fontSize', size + 1)
+              }
+            })
+          })
+        },
+
+        onTapFontDecrease: function(e) {
+          var selected = this.scene.selected
+
+          this.scene.undoableChange(function() {
+            selected.forEach(function(component) {
+
+              var fontSize = component.get('fontSize')
+
+              if(!fontSize)
+                fontSize = "15"
+
+              if(fontSize) {
+                var size = parseInt(fontSize)
+                if(size > 1)
+                  component.set('fontSize', size - 1)
+              }
+            })
+          })
+        },
+
+        onTapAlign: function(e) {
+
+          if(!this.scene)
+            return
+
+          var selected = this.scene.selected
+          if(selected.length <= 1)
+            return
+
+          if(e.target){
+            var button = e.target;
+
+            while (!button.hasAttribute('data-align') && button !== document.body)
+              button = button.parentElement;
+
+            var align = button.getAttribute('data-align')
+          } else {
+            var align = e
+          }
+
+          this.scene.align(align)
+        },
+
+        onTapZorder: function(e) {
+          if(!this.scene)
+            return
+
+          var selected = this.scene.selected
+          if(selected.length < 1)
+            return
+          if(e.target){
+            var button = e.target;
+
+            while (!button.hasAttribute('data-zorder') && button !== document.body)
+              button = button.parentElement;
+
+            var zorder = button.getAttribute('data-zorder')
+          } else {
+            var zorder = e.getAttribute('data-zorder')
+          }
+
+          this.scene.zorder(zorder)
+        },
+
+        onTapZoom: function(e) {
+          if(!this.scene)
+            return
+
+          if(e.target){
+            var button = e.target;
+
+            while (!button.hasAttribute('data-zoom') && button !== document.body)
+              button = button.parentElement;
+
+            var zoom = button.getAttribute('data-zoom')
+          } else {
+            // 핫키를 눌렀을때 로직
+            var zoom = e.getAttribute('data-zoom')
+          }
+
+          if(zoom === 'zoomout' && this.zoom > 0)
+            this.zoom = this.zoom - 1
+          else if(zoom === 'zoomin' && this.zoom < this.zooms.length - 1)
+            this.zoom = this.zoom + 1
+        },
+
+        onTapSymmetryX: function(e) {
+          this.scene && this.scene.symmetryX()
+        },
+
+        onTapSymmetryY: function(e) {
+          this.scene && this.scene.symmetryY()
+        },
+
+        onTapRotateCW: function(e) {
+          if(!this.scene)
+            return
+
+          var selected = this.scene.selected
+
+          this.scene.undoableChange(function() {
+            selected.forEach(function(component) {
+
+              var rotation = component.get('rotation')
+
+              if(!rotation)
+                rotation = 0
+
+              component.set('rotation', (rotation + Math.PI / 2) % (Math.PI * 2))
+            })
+          })
+        },
+
+        onTapRotateCCW: function(e) {
+          if(!this.scene)
+            return
+
+          var selected = this.scene.selected
+
+          this.scene.undoableChange(function() {
+            selected.forEach(function(component) {
+
+              var rotation = component.get('rotation')
+
+              if(!rotation)
+                rotation = 0
+
+              component.set('rotation', (rotation - Math.PI / 2) % (Math.PI * 2))
+            })
+          })
+        },
+
+        onTapGroup: function(e) {
+          this.scene && this.scene.group()
+        },
+
+        onTapUngroup: function(e) {
+          this.scene && this.scene.ungroup()
+        },
+
+        onTapFullscreen: function(e) {
+          this.scene && this.scene.fullscreen()
+        },
+
+        onTapToggle: function(e) {
+          this.hideProperty = !this.hideProperty
+        },
+
+        onTapFitScene: function(e) {
+          this.scene.fit('ratio');
+          this.zoom = this.scene.scale.x;
+        },
+
+        // Only for GMap Viewer
+        onTapShowCenterControl: function(e) {
+          this.showCenterControl = !this.showCenterControl
+        },
+
+        onTapDistribute: function(e) {
+          if(!this.scene)
+            return
+
+          var selected = this.scene.selected
+          if(selected.length <= 1)
+            return
+          if(e.target){
+            var button = e.target;
+
+            while (!button.hasAttribute('data-distribute') && button !== document.body)
+              button = button.parentElement;
+
+            var distribute = button.getAttribute('data-distribute')
+          } else {
+            var distribute = e
+          }
+
+          this.scene.distribute(distribute)
+        }
+
+      });
+    })();
+  </script>
+</dom-module>

@@ -1,0 +1,288 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
+<link rel="import" href="../../bower_components/paper-dialog-behavior/paper-dialog-shared-styles.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+
+<link rel="import" href="../things-util.html">
+
+<dom-module id="things-modeler-pallet">
+  <template>
+
+    <style include="paper-dialog-shared-styles">
+
+      :host {
+        background-color:#eceff1;
+        margin:0;
+        width:210px;height:100%;
+        overflow:hidden;
+        border:2px solid var(--things-secondary-color);
+      }
+
+      h2{
+        background-color:var(--things-secondary-color);
+        padding:1px 5px;
+        margin:0;
+        font-size:11px;
+        color:#fff;
+        font-weight:600;
+        text-transform:capitalize;
+        line-height:initial;
+      }
+      .scroll{
+        margin:0;
+        padding:0;
+        height:98%;
+      }
+      paper-listbox{
+        display:block;
+        margin-bottom:1% !important;
+        width:100%;
+      }
+      paper-item{
+        min-height:20px;
+        padding:0 5px;
+        border-bottom:1px solid rgba(0,0,0,.1);
+        font-size:11px;
+        color:#666;
+        text-align:left;
+      }
+
+      iron-image{
+        margin-right:7px;
+        width:70px;height:40px;
+        opacity:.8
+      }
+      paper-item:focus{background-color:#fff;}
+      paper-item:focus:before{position:relative !important;}
+      paper-listbox[data-pallet="line"] paper-item:before{
+        background: url(/images/icon-pallet-line.png) no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="line"]:before                   {background-position:50%     0px !important}
+      paper-item[data-type="dash"]:before                 {background-position:50%  -100px !important}
+      paper-item[data-type="single arrow"]:before      {background-position:50%  -200px !important}
+      paper-item[data-type="both arrow"]:before        {background-position:50%  -300px !important}
+      paper-item[data-type="right angle path"]:before{background-position:50%  -397px !important}
+
+      paper-listbox[data-pallet="rect"] paper-item:before{
+        background: url(/images/icon-pallet-rect.png) no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="rect"]:before                  {background-position:50%     0px !important}
+      paper-item[data-type="round rect"]:before        {background-position:50%  -100px !important}
+      paper-item[data-type="half round rect"]:before {background-position:50%  -200px !important}
+
+      /*paper-listbox[data-pallet="ellipse"] paper-item:before{
+        background: url(/images/icon-pallet-ellipse.png) no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="circle"]:before  {background-position:50%     0px !important}*/
+      paper-item[data-type="ellipses"]:before{background: url(/images/icon-pallet-ellipse.png) no-repeat 50%  -100px !important}
+      paper-item[data-type="donut"]:before   {background: url(/images/icon-pallet-ellipse.png) no-repeat 50%  -200px !important}
+
+      /*paper-listbox[data-pallet="other shape"] paper-item:before{
+        background: url(/images/icon-pallet-shape.png) no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }*/
+
+      paper-listbox[data-pallet="table"] paper-item:before{
+        background: url(/images/icon-pallet-shape.png) no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="triangle"]:before       {background: url(/images/icon-pallet-shape.png) no-repeat 50%       0px !important}
+      paper-item[data-type="star"]:before             {background: url(/images/icon-pallet-shape.png) no-repeat 50%  -100px !important}
+      paper-item[data-type="cloud"]:before          {background: url(/images/icon-pallet-shape.png) no-repeat 50%  -200px !important}
+      paper-item[data-type="marker"]:before        {background: url(/images/icon-pallet-shape.png) no-repeat 50%  -300px !important}
+      paper-item[data-type="clock-analog"]:before{background: url(/images/icon-pallet-shape.png) no-repeat 50%  -400px !important}
+      paper-item[data-type="clock-text"]:before    {background: url(/images/icon-pallet-shape.png) no-repeat 50%  -500px !important}
+      paper-item[data-type="compass"]:before      {background: url(/images/icon-pallet-shape.png) no-repeat 50%  -600px !important}
+      paper-item[data-type="table"]:before            {background: url(/images/icon-pallet-shape.png) no-repeat 50%  -699px !important}
+
+      /*paper-listbox[data-pallet="polygon"] paper-item:before{
+        background: url(/images/icon-pallet-polygon.png) no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }*/
+      paper-item[data-type="polyline"]:before  {background: url(/images/icon-pallet-polygon.png) no-repeat 50% -100px !important}
+      paper-item[data-type="polygon"]:before  {background: url(/images/icon-pallet-polygon.png) no-repeat 50%    0px !important}
+
+      paper-listbox[data-pallet="text"] paper-item:before{
+        background: url(/images/icon-pallet-text.png) 50% 0 no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="simple"]:before   {background-position:50%    0px !important}
+      paper-item[data-type="animated"]:before {background-position:50% -100px !important}
+
+      paper-listbox[data-pallet="media"] paper-item:before{
+        background: url(/images/icon-pallet-image.png) no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="color image"]:before  {background-position:50%     0px !important}
+      paper-item[data-type="gray image"]:before   {background-position:50% -100px !important}
+      paper-item[data-type="movie"]:before           {background-position:50% -200px !important}
+      paper-item[data-type="ws-live-video"]:before{background-position:50% -300px !important}
+      paper-item[data-type="360-video"]:before     {background-position:50% -399px !important}
+
+      paper-listbox[data-pallet="gauge"] paper-item:before{
+        background: url(/images/icon-pallet-gauge.png) no-repeat;
+        width:20px;height:20px;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="gauge-circle"]:before   {background-position:50%    0px !important}
+      paper-item[data-type="gauge-vertical"]:before {background-position:50% -100px !important}
+      paper-item[data-type="gauge-horizon"]:before  {background-position:50% -200px !important}
+      paper-item[data-type="progress-bar"]:before   {background-position:50% -300px !important}
+      paper-item[data-type="progress-circle"]:before{background-position:50% -400px !important}
+      paper-item[data-type="progress-vertical"]:before{background-position:50% -600px !important}
+      paper-item[data-type="progress-horizontal"]:before{background-position:50% -300px !important}
+
+      paper-listbox[data-pallet="chart"] paper-item:before{
+        background: url(/images/icon-pallet-chart.png) no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="histogram"]:before                   {background-position:50%     0px !important}
+      paper-item[data-type="bar chart"]:before                   {background-position:50%  -100px !important}
+      paper-item[data-type="stacked bar chart"]:before           {background-position:50%  -200px !important}
+      paper-item[data-type="horizontal bar chart"]:before        {background-position:50%  -300px !important}
+      paper-item[data-type="horizontal stacked bar chart"]:before{background-position:50%  -400px !important}
+      paper-item[data-type="line chart"]:before                  {background-position:50%  -500px !important}
+      paper-item[data-type="mixed chart"]:before                 {background-position:50%  -600px !important}
+      paper-item[data-type="radar chart"]:before                 {background-position:50%  -700px !important}
+      paper-item[data-type="polar area chart"]:before            {background-position:50%  -800px !important}
+      paper-item[data-type="pie chart"]:before                   {background-position:50%  -900px !important}
+      paper-item[data-type="doughnut chart"]:before              {background-position:50% -1000px !important}
+      paper-item[data-type="control chart"]:before               {background-position:50% -1100px !important}
+
+      paper-listbox[data-pallet="3D"] paper-item:before{
+        background: url(/images/icon-pallet-3d.png) no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="three container"]:before{background-position:50%     -1px !important}
+      paper-item[data-type="cube"]:before{background-position:50%     -101px !important}
+      paper-item[data-type="cylinder"]:before{background-position:50%     -201px !important}
+      paper-item[data-type="sphere"]:before{background-position:50%     -302px !important}
+      paper-item[data-type="banner"]:before{background-position:50%     -401px !important}
+
+      paper-listbox[data-pallet="warehouse"] paper-item:before{
+        background: url(/images/icon-pallet-warehouse.png) no-repeat;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="rack"]:before                  {background-position:50%      0px !important}
+      paper-item[data-type="container"]:before          {background-position:50%  -100px !important}
+      paper-item[data-type="indoor map"]:before       {background-position:50%  -200px !important}
+      paper-item[data-type="person"]:before              {background-position:50%  -300px !important}
+      paper-item[data-type="forklift"]:before              {background-position:50%  -401px !important}
+      paper-item[data-type="humidity sensor"]:before{background-position:50%  -502px !important}
+      paper-item[data-type="tab"]:before{background-position:50%  -700px !important}
+      paper-item[data-type="beacon"]:before{background-position:50%  -800px !important}
+
+      paper-listbox[data-pallet="line"] *,paper-listbox[data-pallet="line"] *:hover{cursor:url(/images/line.ico),auto !important;}
+      paper-listbox[data-pallet="rect"] *,paper-listbox[data-pallet="rect"] *:hover{cursor:url(/images/rect.ico),auto !important;}
+      paper-listbox[data-pallet="ellipse"] *,paper-listbox[data-pallet="ellipse"] *:hover{cursor:url(/images/ellipse.ico),auto !important;}
+      paper-listbox[data-pallet="other shape"] *,paper-listbox[data-pallet="other shape"] *:hover{cursor:url(/images/shape.ico),auto !important;}
+      paper-listbox[data-pallet="polygon"] *,paper-listbox[data-pallet="polygon"] *:hover{cursor:url(/images/poly.ico),auto !important;}
+      paper-listbox[data-pallet="text"] *,paper-listbox[data-pallet="text"] *:hover{cursor:url(/images/text.ico),auto !important;}
+      paper-listbox[data-pallet="media"] *,paper-listbox[data-pallet="media"] *:hover{cursor:url(/images/media.ico),auto !important;}
+      paper-listbox[data-pallet="gauge"] *,paper-listbox[data-pallet="gauge"] *:hover{cursor:url(/images/gauge.ico),auto !important;}
+      paper-listbox[data-pallet="chart"] *,paper-listbox[data-pallet="chart"] *:hover{cursor:url(/images/chart.ico),auto !important;}
+      paper-listbox[data-pallet="3D"] *,paper-listbox[data-pallet="3D"] *:hover{cursor:url(/images/3d.ico),auto !important;}
+      paper-listbox[data-pallet="warehouse"] *,paper-listbox[data-pallet="warehouse"] *:hover{cursor:url(/images/warehouse.ico),auto !important;}
+
+      paper-item[data-type="variable"]:before{
+        background: url(/images/icon-pallet-etc.png) 50% 1px no-repeat !important;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+
+      paper-item[data-type="local reference"]:before   {
+        background: url(/images/icon-pallet-warehouse.png) 50% -900px no-repeat !important;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+      paper-item[data-type="global reference"]:before {
+        background: url(/images/icon-pallet-warehouse.png) 50% -1000px no-repeat !important;
+        @apply(--things-vtoolbar-pallet-icon);
+      }
+    </style>
+
+    <h2>{{pallet}} list</h2>
+
+    <paper-listbox id="type-list" data-pallet$="{{pallet}}" class="scroll">
+
+      <template is="dom-repeat" items="{{types}}">
+        <paper-item data-type$="{{item.type}}">{{item.type}}</paper-item>
+      </template>
+
+    </paper-listbox>
+
+    <things-pallets-data pallets="{{pallets}}"></things-pallets-data>
+
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'things-modeler-pallet',
+
+        properties: {
+          scene: {
+            notify: true
+          },
+          pallets: {
+            notify: true
+          },
+          pallet: {
+            type: String,
+            notify: true
+          },
+          types: {
+            type: Array,
+            notify: true,
+            computed: 'computePallet(pallet)'
+          }
+        },
+
+        listeners: {
+          'type-list.tap': 'onTapTypeList'
+        },
+
+        behaviors: [
+          Polymer.PaperDialogBehavior
+        ],
+
+        onTapTypeList: function(e) {
+          var item = e.target;
+
+          while (!item.hasAttribute('data-type') && item !== document.body)
+            item = item.parentElement;
+
+          var type = item.getAttribute('data-type')
+
+          if(!type)
+            return
+
+          var pallet = this.pallets[this.pallet].find(function(p) {
+            return p.type === type
+          })
+
+          if(this.scene && pallet) {
+            var center = this.scene.root.transcoordC2S(200, 200);
+
+            this.scene.add(Object.deepClone(pallet.model),
+              { cx: center.x, cy: center.y });
+          }
+
+          this.close()
+        },
+
+        computePallet: function(pallet) {
+          return this.pallets[pallet]
+        }
+
+      });
+    })();
+  </script>
+</dom-module>

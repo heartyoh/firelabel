@@ -68,21 +68,6 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
   </template>
 
   <script>
-    const EMPTY_MODEL = {
-      width: 800,
-      height: 600,
-      components: [{
-        type: 'text',
-        top: 30,
-        left: 30,
-        textAlign: 'left',
-        fontSize: '30',
-        fontFamily: 'serif',
-        fontColor: 'navy',
-        text: 'EMPTY'
-      }]
-    }
-
     class LabelModeler extends Polymer.Element {
 
       static get is() { return 'label-modeler'; }
@@ -92,8 +77,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
           label: Object,
           mode: {
             type: Number,
-            notify: true,
-            value: 1
+            value: scene.MODE_EDIT
           }
         };
       }
@@ -106,12 +90,27 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       _labelChanged(label) {
 
-        var copiedLabel = this.label || EMPTY_MODEL;
+        var copiedLabel = this.label || LabelModeler.EMPTY_MODEL;
 
         this.copiedLabel = JSON.parse(JSON.stringify(copiedLabel));
       }
 
     }
+
+    LabelModeler.EMPTY_MODEL = {
+      width: 800,
+      height: 600,
+      components: [{
+        type: 'text',
+        top: 30,
+        left: 30,
+        textAlign: 'left',
+        fontSize: '30',
+        fontFamily: 'serif',
+        fontColor: 'navy',
+        text: 'EMPTY'
+      }]
+    };
 
     window.customElements.define(LabelModeler.is, LabelModeler);
   </script>

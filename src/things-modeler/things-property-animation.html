@@ -1,0 +1,399 @@
+<!--
+@license
+Copyright (c) 2017, HatioLab Inc. All right reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
+<link rel="import" href="../../bower_components/things-designer-elements/things-editor-number-input.html">
+
+<dom-module id="things-property-animation">
+  <template>
+    <style>
+      :host {
+        @apply(--things-properties-panel);
+      }
+      label{
+        @apply(--things-label);
+      }
+      input{
+        @apply(--things-input);
+      }
+      fieldset{
+        @apply(--things-fieldset);
+      }
+      legend{
+        @apply(--things-fieldset-legend);
+      }
+      select{
+        @apply(--things-select);
+        background:url(/images/bg-input-select.png) 100% 50% no-repeat #fff;
+      }
+    </style>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'rect')]]">
+      <fieldset>
+        <legend>rect style</legend>
+        <label>round</label>
+        <input is="things-editor-number-input" number="{{model.round::change}}" min="0" max="100" step="1"/>
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'barcode')]]">
+      <fieldset class="column-double">
+        <legend>barcode style</legend>
+        <label>scale_W</label>
+        <input is="things-editor-number-input" number="{{model.scale_w::change}}" min="0" max="10" step="1"/>
+        <label>scale_H</label>
+        <input is="things-editor-number-input" number="{{model.scale_h::change}}" min="0" max="10" step="1"/>
+        <label>rot</label>
+        <select class="select-content" value="{{model.rot::change}}">
+          <option value="N">0˚</option>
+          <option value="R">90˚</option>
+          <option value="I">180˚</option>
+          <option value="B">270˚</option>
+        </select>
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'donut')]]">
+      <fieldset>
+        <legend>donut style</legend>
+        <label>ratio</label>
+        <input is="things-editor-number-input" number="{{model.ratio::change}}" min="0" max="100" step="1"/>
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'star')]]">
+      <fieldset class="column-double">
+        <legend>star style</legend>
+        <label>ratio</label>
+        <input is="things-editor-number-input" number="{{model.ratio::change}}" min="0" max="100" step="1"/>
+        <label>wing</label>
+        <input is="things-editor-number-input" number="{{model.wing::change}}" min="3" step="1"/>
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'text')]]">
+      <fieldset>
+        <legend>text style</legend>
+        <label>Text fit</label>
+        <select selected="{{model.textType::change}}">
+          <option value="S">Default</option>
+          <option value="F">F</option>
+          <option value="W">W</option>
+        </select>
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'progress-circle')]]">
+      <fieldset class="same-width">
+        <legend>progress style</legend>
+        <label>value</label>
+        <input is="things-editor-number-input" number="{{model.value::change}}" min="0" max="100" step="1"/>
+
+        <label>blankStrokeStyle</label>
+        <things-editor-color value="{{model.blankStrokeStyle}}">
+        </things-editor-color>
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'progress-vertical')]]">
+      <fieldset class="column-double">
+        <legend>progress style</legend>
+        <label>value</label>
+        <input is="things-editor-number-input" number="{{model.value::change}}" min="0" max="100" step="1"/>
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'compass')]]">
+      <fieldset class="column-double">
+        <legend>Compass style</legend>
+        <label>value</label>
+        <input is="things-editor-number-input" number="{{model.value::change}}" min="0" max="100" step="1"/>
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'image-view')]]">
+      <fieldset class="same-width">
+        <legend>Image View</legend>
+        <label>IsGrf</label>
+        <input type="checkbox" checked="{{model.isGrf::change}}">
+        <label>src</label>
+        <input type="text" value="{{model.src::change}}"/>
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'gauge-circle')]]">
+      <fieldset class="same-width">
+        <legend>Gauge style</legend>
+
+        <label>Value</label>
+        <input is="things-editor-number-input" number="{{model.value::change}}"/>
+
+        <label>StartValue</label>
+        <input is="things-editor-number-input" number="{{model.startValue::change}}" min="0" max="100" step="1" numberonly="true" />
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showStartValue::change}}" required>ShowStartValue
+        </div>
+
+        <label>EndValue</label>
+        <input is="things-editor-number-input" number="{{model.endValue::change}}" min="0" max="100" step="1"/>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showEndValue::change}}" required>ShowEndValue
+        </div>
+
+        <label>Step</label>
+        <input is="things-editor-number-input" number="{{model.step::change}}"/>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showStepLine::change}}" required>ShowStepLine
+        </div>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showStepText::change}}" required>ShowStepText
+        </div>
+
+        <label>SubTextSize</label>
+        <input is="things-editor-number-input" number="{{model.subTextSize::change}}"/>
+
+        <label>SubStep</label>
+        <input is="things-editor-number-input" number="{{model.subStep::change}}"/>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showSubStep::change}}" required>ShowSubStep
+        </div>
+
+        <label>StepNeedleSize</label>
+        <input is="things-editor-number-input" number="{{model.stepNeedleSize::change}}"/>
+
+        <label>StartAngle</label>
+        <input is="things-editor-number-input" number="{{model.startAngle::change}}" min="0" max="360" step="1"/>
+
+        <label>EndAngle</label>
+        <input is="things-editor-number-input" number="{{model.endAngle::change}}" min="0" max="360" step="1"/>
+
+        <label>TextFillStyle</label>
+        <things-editor-color value="{{model.textFillStyle}}">
+        </things-editor-color>
+
+        <label>NeedleFillStyle</label>
+        <things-editor-color value="{{model.needleFillStyle}}">
+        </things-editor-color>
+
+        <label>InnerCircleFillStyle</label>
+        <things-editor-color value="{{model.innerCircleFillStyle}}">
+        </things-editor-color>
+
+        <label>StepFillStyle</label>
+        <things-editor-color value="{{model.stepFillStyle}}">
+        </things-editor-color>
+
+        <label>ColorStops</label>
+        <things-editor-color-stops type="gradient"
+                                   min="[[model.startValue]]"
+                                   max="[[model.endValue]]"
+                                   value="{{model.colorStops}}">
+        </things-editor-color-stops>
+
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'gauge-vertical')]]">
+      <fieldset class="same-width">
+        <legend>Gauge style</legend>
+
+        <label>Value</label>
+        <input is="things-editor-number-input" number="{{model.value::change}}"/>
+
+        <label>StartValue</label>
+        <input is="things-editor-number-input" number="{{model.startValue::change}}" min="0" max="100" step="1" numberonly="true" />
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showStartValue::change}}" required>ShowStartValue
+        </div>
+
+        <label>EndValue</label>
+        <input is="things-editor-number-input" number="{{model.endValue::change}}" min="0" max="100" step="1"/>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showEndValue::change}}" required>ShowEndValue
+        </div>
+
+        <label>Step</label>
+        <input is="things-editor-number-input" number="{{model.step::change}}"/>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showStepLine::change}}" required>ShowStepLine
+        </div>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showStepText::change}}" required>ShowStepText
+        </div>
+
+        <label>SubTextSize</label>
+        <input is="things-editor-number-input" number="{{model.subTextSize::change}}"/>
+
+        <label>SubStep</label>
+        <input is="things-editor-number-input" number="{{model.subStep::change}}"/>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showSubStep::change}}" required>ShowSubStep
+        </div>
+
+        <label>StepNeedleSize</label>
+        <input is="things-editor-number-input" number="{{model.stepNeedleSize::change}}"/>
+
+        <label>TextFillStyle</label>
+        <things-editor-color value="{{model.textFillStyle}}">
+        </things-editor-color>
+
+        <label>NeedleFillStyle</label>
+        <things-editor-color value="{{model.needleFillStyle}}">
+        </things-editor-color>
+
+        <label>NeedleSize</label>
+        <input is="things-editor-number-input" number="{{model.needleSize::change}}"/>
+
+        <label>StepFillStyle</label>
+        <things-editor-color value="{{model.stepFillStyle}}">
+        </things-editor-color>
+
+        <label>ColorStops</label>
+        <things-editor-color-stops type="solid"
+                                   min="[[model.startValue]]"
+                                   max="[[model.endValue]]"
+                                   value="{{model.colorStops}}">
+        </things-editor-color-stops>
+
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'gauge-horizon')]]">
+      <fieldset class="same-width">
+        <legend>Gauge style</legend>
+
+        <label>Value</label>
+        <input is="things-editor-number-input" number="{{model.value::change}}"/>
+
+        <label>StartValue</label>
+        <input is="things-editor-number-input" number="{{model.startValue::change}}" min="0" max="100" step="1" numberonly="true" />
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showStartValue::change}}" required>ShowStartValue
+        </div>
+
+        <label>EndValue</label>
+        <input is="things-editor-number-input" number="{{model.endValue::change}}" min="0" max="100" step="1"/>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showEndValue::change}}" required>ShowEndValue
+        </div>
+
+        <label>Step</label>
+        <input is="things-editor-number-input" number="{{model.step::change}}"/>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showStepLine::change}}" required>ShowStepLine
+        </div>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showStepText::change}}" required>ShowStepText
+        </div>
+
+        <label>SubTextSize</label>
+        <input is="things-editor-number-input" number="{{model.subTextSize::change}}"/>
+
+        <label>SubStep</label>
+        <input is="things-editor-number-input" number="{{model.subStep::change}}"/>
+
+        <div class="merge-column">
+          <input type="checkbox" checked="{{model.showSubStep::change}}" required>ShowSubStep
+        </div>
+
+        <label>StepNeedleSize</label>
+        <input is="things-editor-number-input" number="{{model.stepNeedleSize::change}}"/>
+
+        <label>TextFillStyle</label>
+        <things-editor-color value="{{model.textFillStyle}}">
+        </things-editor-color>
+
+        <label>NeedleFillStyle</label>
+        <things-editor-color value="{{model.needleFillStyle}}">
+        </things-editor-color>
+
+        <label>NeedleSize</label>
+        <input is="things-editor-number-input" number="{{model.needleSize::change}}"/>
+
+        <label>StepFillStyle</label>
+        <things-editor-color value="{{model.stepFillStyle}}">
+        </things-editor-color>
+
+        <label>ColorStops</label>
+        <things-editor-color-stops type="solid"
+                                   min="[[model.startValue]]"
+                                   max="[[model.endValue]]"
+                                   value="{{model.colorStops}}">
+        </things-editor-color-stops>
+
+      </fieldset>
+    </template>
+
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'indoor-map')]]">
+      <fieldset class="same-width">
+        <legend>Indoor style</legend>
+
+        <label>Value</label>
+        <input is="things-editor-number-input" number="{{model.value::change}}"/>
+
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'rack')]]">
+      <fieldset class="same-width">
+        <legend>Rack style</legend>
+
+        <label>Depth</label>
+        <input is="things-editor-number-input" number="{{model.depth::change}}"/>
+
+        <label>Shelves</label>
+        <input is="things-editor-number-input" number="{{model.shelves::change}}"/>
+
+        <label>Location</label>
+        <input is="things-editor-number-input" number="{{model.location::change}}"/>
+      </fieldset>
+    </template>
+
+    <template is="dom-if" if="[[_isTypeofModel(model, 'chartjs')]]">
+    </template>
+
+    <form class="content" method="post">
+      <fieldset>
+        <legend>animation</legend>
+      </fieldset>
+    </form>
+
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+      Polymer({
+        is: 'things-property-animation',
+        properties: {
+          model: {
+            notify: true
+          }
+        },
+        _isTypeofModel: function(model, type) {
+          return model && model.type === type
+        }
+      })
+    })();
+  </script>
+</dom-module>
