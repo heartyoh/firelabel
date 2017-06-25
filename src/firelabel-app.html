@@ -125,18 +125,18 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         data="{{models}}">
     </firebase-query>
 
-    <firebase-query
+    <!--<firebase-query
         id="query-items"
         app-name="firelabel"
         path="/labels/[[user.uid]]/items"
         data="{{items}}">
-    </firebase-query>
+    </firebase-query>-->
 
     <firebase-query
-        id="query-item"
+        id="query-items"
         app-name="firelabel"
         path="/labels/[[user.uid]]/items/[[subrouteData.id]]"
-        data="{{item}}">
+        data="{{labelItems}}">
     </firebase-query>
 
     <firebase-document
@@ -153,6 +153,13 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         data="{{model}}">
     </firebase-document>
 
+    <firebase-document
+        id="document-items"
+        app-name="firelabel"
+        path="/labels/[[user.uid]]/items/[[subrouteData.id]]"
+        data="{{items}}">
+    </firebase-document>
+
     <app-indexeddb-mirror
         session="[[user.uid]]"
         key="firelabel-labels"
@@ -167,12 +174,12 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         persisted-data="{{persistedModels}}">
     </app-indexeddb-mirror>
 
-    <app-indexeddb-mirror
+    <!--<app-indexeddb-mirror
         session="[[user.uid]]"
         key="firelabel-items"
         data="{{items}}"
         persisted-data="{{persistedItems}}">
-    </app-indexeddb-mirror>
+    </app-indexeddb-mirror>-->
 
     <app-drawer-layout fullbleed>
       <!-- Drawer content -->
@@ -209,7 +216,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
           <label-edit name="label-edit" model="{{model}}" label="{{label}}"></label-edit>
           <label-preview name="label-preview" model="[[model]]" label="[[label]]"></label-preview>
           <label-modeler name="label-modeler" model="{{model}}" label="{{label}}"></label-modeler>
-          <item-list name="item-list" item="[[item]]"></item-list>
+          <item-list name="item-list" items="[[labelItems]]"></item-list>
           <!--<firebase-login name="firebase-login" on-sign-in="signIn" signed-in="[[signedIn]]" disabled="[[!online]]"></firebase-login>-->
           <notfound-404 name="notfound-404"></notfound-404>
         </iron-pages>
@@ -244,7 +251,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
           models: Object,
           persistedLabels: Object,
           labels: Object,
-          persistedItems: Object,
+          labelItems: Object,
           items: Object,
           label: Object,
           model: Object
@@ -354,14 +361,17 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
       _onBeginNewLabel() {
         this.set('route.path', '/label-new');
+        this.set('subrouteData', null);
       }
 
       _onCommitNewLabel(e) {
         var parentModelPath = `/labels/${this.user.uid}/models`;
         var parentLabelPath = `/labels/${this.user.uid}/labels`;
+        var parentItemsPath = `/labels/${this.user.uid}/items`;
         var { key, label } = e.detail;
 
         this.set('label', label);
+        this.set('items', {a:1});
 
         if(this.model.title && key) {
           this.$['document-model'].saveValue(parentModelPath, key)
@@ -369,6 +379,9 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
           
           this.$['document-label'].saveValue(parentLabelPath, key)
           .then(() => this.$['document-label'].reset())
+          
+          this.$['document-items'].saveValue(parentItemsPath, key)
+          .then(() => this.$['document-items'].reset())
         }
 
         // this.set('route.path', '/label-modeler');
@@ -408,6 +421,9 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
         if(!this.$['document-label'].isNew)
           this.$['document-label'].destroy();
+
+        if(!this.$['document-items'].isNew)
+          this.$['document-items'].destroy();
 
         this.set('route.path', '/label-list');
       }

@@ -38,6 +38,8 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
     always-float-label 
     label="Model"
     value="{{stringifiedLabel}}"
+    rows=5
+    max-rows=10
     required>
   </paper-textarea>
 
@@ -59,7 +61,10 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
             type: Object,
             notify: true
           },
-          key: String
+          key: String,
+          stringifiedLabel: {
+            value: JSON.stringify(LabelNew.EMPTY_MODEL, null, 2)
+          }
         };
       }
 
@@ -71,8 +76,6 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
         } catch(e) {
           console.error(e)
         }
-
-        // this.set('label', label);
 
         this.dispatchEvent(new CustomEvent('commit-new-label', {
           detail: {

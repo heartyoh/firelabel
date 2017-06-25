@@ -19,13 +19,13 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
     </style>
 
     <div class="items">
-      <template is="dom-repeat" items="[[item]]" as="it">
+      <template is="dom-repeat" items="[[items]]" as="item">
         <div class="card">
           <div class="circle">[[index]]</div>
-          <h1>[[it.title]]</h1>
-          <p>[[it.body]]</p>
-          <p>[[it.$key]]</p>
-          <a name="label-print" href="label-print/[[it.$key]]">Label Print</a>
+          <h1>[[item.title]]</h1>
+          <p>[[item.body]]</p>
+          <p>[[item.$key]]</p>
+          <a name="label-print" href="label-print/[[item.$key]]">Label Print</a>
         </div>
       </template>
     </div>
@@ -48,7 +48,7 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
             type: String,
             notify: true
           },
-          item: {
+          items: {
             type: Array
           }
         };

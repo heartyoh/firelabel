@@ -8,6 +8,27 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
 <link rel="import" href="../bower_components/things-scene-viewer/things-scene-viewer.html">
 
+<link rel="import" href="../bower_components/things-scene-rap/things-scene-rap.html">
+<link rel="import" href="../bower_components/things-scene-forklift/things-scene-forklift.html">
+<link rel="import" href="../bower_components/things-scene-person/things-scene-person.html">
+<link rel="import" href="../bower_components/things-scene-gauge/things-scene-gauge.html">
+<link rel="import" href="../bower_components/things-scene-progressbar/things-scene-progressbar.html">
+<link rel="import" href="../bower_components/things-scene-clock/things-scene-clock.html">
+<link rel="import" href="../bower_components/things-scene-indoor-map/things-scene-indoor-map.html">
+<link rel="import" href="../bower_components/things-scene-tab/things-scene-tab.html">
+<link rel="import" href="../bower_components/things-scene-compass/things-scene-compass.html">
+<link rel="import" href="../bower_components/things-scene-half-roundrect/things-scene-half-roundrect.html">
+<link rel="import" href="../bower_components/things-scene-barcode/things-scene-barcode.html">
+<link rel="import" href="../bower_components/things-scene-histogram/things-scene-histogram.html">
+<link rel="import" href="../bower_components/things-scene-chartjs/things-scene-chartjs.html">
+<link rel="import" href="../bower_components/things-scene-ws-live-video/things-scene-ws-live-video.html">
+<link rel="import" href="../bower_components/things-scene-marker/things-scene-marker.html">
+<link rel="import" href="../bower_components/things-scene-three-container/things-scene-three-container.html">
+<link rel="import" href="../bower_components/things-scene-table/things-scene-table.html">
+<link rel="import" href="../bower_components/things-scene-wheel-sorter/things-scene-wheel-sorter.html">
+<link rel="import" href="../bower_components/things-scene-clone/things-scene-clone.html">
+<link rel="import" href="../bower_components/things-scene-firebase/things-scene-firebase.html">
+
 <dom-module id="label-preview">
   <template>
     <style include="shared-styles">
@@ -31,7 +52,11 @@ Copyright (c) 2017, HatioLab Inc. All right reserved.
 
     <h1>[[model.title]]</h1>
 
-    <things-scene-viewer id='label' model='[[copiedLabel]]' fit='both'>
+    <things-scene-viewer 
+      id='label'
+      model='[[copiedLabel]]'
+      mode=0
+      fit='both'>
     </things-scene-viewer>
 
   </template>
