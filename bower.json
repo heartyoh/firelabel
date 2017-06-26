@@ -29,6 +29,7 @@
     "neon-animation": "PolymerElements/neon-animation#^2.0.0",
     "polymerfire": "^2.1.0",
     "things-scene-viewer": "ThingsElements/things-scene-viewer#polymer-2",
+    "things-designer-elements": "ThingsElements/things-designer-elements#polymer-2",
     "things-scene-rap": "ThingsElements/things-scene-rap#^2.0.0",
     "things-scene-forklift": "ThingsElements/things-scene-forklift",
     "things-scene-person": "ThingsElements/things-scene-person",
